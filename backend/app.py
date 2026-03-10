@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import hashlib
 
 app = Flask(__name__)
 
@@ -9,12 +10,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(64), nullable=False)
 
-# Create tables
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
 with app.app_context():
     db.create_all()
 
