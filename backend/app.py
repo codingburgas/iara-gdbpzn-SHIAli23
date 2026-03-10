@@ -9,6 +9,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(64), nullable=False)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+
 @app.route('/')
 def index():
     return 'Hello World!'
