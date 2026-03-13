@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask import request, jsonify
 import hashlib
 
 app = Flask(__name__)
@@ -76,6 +77,67 @@ with app.app_context():
 @app.route('/')
 def index():
     return 'Hello World from SQL Server!'
+
+@app.route('/auth/register', methods=['POST'])
+def register():
+    data = request.json
+
+    full_name = data.get('full_name')
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role')
+
+    if not full_name or not username or not password or not role:
+        return jsonify({"error": "Missing fields"}), 400
+
+    #Check if the user exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"error": "Username already exists"}), 409
+
+    hashed_password = hash_password(password)
+
+    new_user = User(
+        full_name=full_name,
+        username=username,
+        password=hashed_password,
+        role=role
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "User registered successfully"}), 201
+
+@app.route('/auth/login', methods=['POST'])
+def login():
+    data = request.json
+
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Missing fields"}), 400
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    hashed_password = hash_password(password)
+
+    if user.password != hashed_password:
+        return jsonify({"error": "Invalid password"}), 401
+
+    return jsonify({
+        "message": "Login successful",
+        "user": {
+            "id": user.id,
+            "full_name": user.full_name,
+            "role": user.role
+        }
+    }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
