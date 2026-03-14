@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify
+from datetime import datetime
 import hashlib
 
 app = Flask(__name__)
@@ -137,6 +138,49 @@ def login():
             "role": user.role
         }
     }), 200
+
+@app.route('/incidents/create', methods=['POST'])
+def create_incident():
+    data = request.json
+
+    incident_type = data.get('type')
+    address = data.get('address')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+
+    if not incident_type or not address:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    new_incident = Incident(
+        type=incident_type,
+        address=address,
+        latitude=latitude,
+        longitude=longitude,
+        created_at=datetime.now()
+    )
+
+    db.session.add(new_incident)
+    db.session.commit()
+
+    return jsonify({"message": "Incident created successfully"}), 201
+
+@app.route('/incidents/list', methods=['GET'])
+def list_incidents():
+    incidents = Incident.query.all()
+
+    result = []
+    for inc in incidents:
+        result.append({
+            "id": inc.id,
+            "type": inc.type,
+            "address": inc.address,
+            "latitude": inc.latitude,
+            "longitude": inc.longitude,
+            "status": inc.status,
+            "created_at": inc.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+    return jsonify(result), 200
 
 
 if __name__ == '__main__':
