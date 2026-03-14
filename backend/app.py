@@ -2,9 +2,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify
 from datetime import datetime
+from flask_cors import CORS
 import hashlib
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     "mssql+pyodbc://SHENIZ\\SQLEXPRESS01/GDBPZNData"

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="../css/register.css">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div class="register-container">
+        <h1 class="title">Регистрация</h1>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <input type="text" id="full_name" placeholder="Въведи име">
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Въведи потребителско име">
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Въведи парола">
+            </div>
+
+            <div class="input-group">
+                <select id="role">
+                    <option value="operator">Оператор</option>
+                    <option value="firefighter">Пожарникар</option>
+                    <option value="admin">Администратор</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">Регистрация</button>
+        </form>
+
+        <p class="login-link">
+            Вече имаш акаунт? <a href="login.html">Вход</a>
+        </p>
+    </div>
+
+    <div class="decorative-circle"></div>
+</div>
+
+<script src="../js/register.js"></script>
+</body>
+</html>
