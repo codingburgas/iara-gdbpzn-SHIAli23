@@ -10,6 +10,7 @@
 <div class="topbar">
     <button id="menuBtn" class="menu-btn">☰</button>
     <h1 class="topbar-title">Табло</h1>
+    <div class="topbar-info">Управление на произшествия</div>
 </div>
 
 <div id="sidebar" class="sidebar">
@@ -31,7 +32,54 @@
 </div>
 
 <div class="content">
-    <p>Избери секция от менюто</p>
+    <div id="incidents-section">
+        <div class="incidents-header">
+            <div class="header-content">
+                <div class="header-titles">
+                    <h1 class="incidents-title">Произшествия</h1>
+                    <p class="incidents-subtitle">Списък с всички активни и приключени произшествия</p>
+                </div>
+                <button id="addIncidentBtn" class="btn-add-incident">+ Добави произшествие</button>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-value" id="activeCount">0</div>
+                    <div class="stat-label">Активни</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-value" id="completedCount">0</div>
+                    <div class="stat-label">Приключени</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-value" id="onHoldCount">0</div>
+                    <div class="stat-label">Приостановени</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Всички</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="incidents-container">
+            <div id="incidentsGrid" class="incidents-grid">
+                <div class="loading-card">Зареждане на произшествия...</div>
+            </div>
+            <div id="emptyStateMessage" class="empty-state" style="display: none;">
+                <p>Няма произшествия</p>
+                <small>Започнете, като кликнете на "Добави произшествие"</small>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="../js/dashboard.js"></script>
