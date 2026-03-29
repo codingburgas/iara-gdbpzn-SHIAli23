@@ -14,7 +14,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
     if (response.ok) {
         alert("Успешен вход!");
-        window.location.href = "../index.html";
+        window.location.href = "../html/dashboard.html";
     } else {
         alert(data.error);
     }
