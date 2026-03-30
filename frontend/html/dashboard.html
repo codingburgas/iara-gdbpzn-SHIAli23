@@ -2,82 +2,157 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Табло</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <body>
 
 <div class="topbar">
-    <button id="menuBtn" class="menu-btn">☰</button>
-    <h1 class="topbar-title">Табло</h1>
-    <div class="topbar-info">Управление на произшествия</div>
+    <div class="topbar-left">
+        <button id="menuBtn" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">Табло</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-subtitle">Управление на произшествия</span>
+        <button id="logoutBtn" class="topbar-logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
 </div>
 
 <div id="sidebar" class="sidebar">
-    <div class="logo">
-        <h2>ГДПБЗН</h2>
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <h2>ГДПБЗН</h2>
+        </div>
     </div>
 
-    <ul class="menu">
-        <li class="menu-item active">Произшествия</li>
-        <li class="menu-item">Екипи</li>
-        <li class="menu-item">Автомобили</li>
-        <li class="menu-item">Смени</li>
-        <li class="menu-item">Настройки</li>
-    </ul>
-
-    <div class="logout">
-        <button id="logoutBtn">Изход</button>
-    </div>
+    <nav class="sidebar-nav">
+        <ul class="menu">
+            <li class="menu-item active" data-page="incidents">
+                <i class="fas fa-bell"></i>
+                <span>Произшествия</span>
+            </li>
+            <li class="menu-item" data-page="teams">
+                <i class="fas fa-users"></i>
+                <span>Екипи</span>
+            </li>
+            <li class="menu-item" data-page="vehicles">
+                <i class="fas fa-fire-truck"></i>
+                <span>Автомобили</span>
+            </li>
+            <li class="menu-item" data-page="shifts">
+                <i class="fas fa-clock"></i>
+                <span>Смени</span>
+            </li>
+            <li class="menu-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 <div class="content">
-    <div id="incidents-section">
-        <div class="incidents-header">
-            <div class="header-content">
-                <div class="header-titles">
-                    <h1 class="incidents-title">Произшествия</h1>
-                    <p class="incidents-subtitle">Списък с всички активни и приключени произшествия</p>
-                </div>
-                <button id="addIncidentBtn" class="btn-add-incident">+ Добави произшествие</button>
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Произшествия</h1>
+            <p>Управление и преглед на всички произшествия</p>
+        </div>
+        <button id="addIncidentBtn" class="btn-add-primary">
+            <i class="fas fa-plus"></i> Добави произшествие
+        </button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-exclamation-triangle stat-icon"></i>
+                <span class="stat-label">Общо произшествия</span>
+            </div>
+            <div class="stat-card-value" id="totalCount">0</div>
+            <div class="stat-card-footer">Всички произшествия</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-spinner stat-icon"></i>
+                <span class="stat-label">Активни</span>
+            </div>
+            <div class="stat-card-value" id="activeCount">0</div>
+            <div class="stat-card-footer">Текущо обработвани</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-check-circle stat-icon"></i>
+                <span class="stat-label">Приключени</span>
+            </div>
+            <div class="stat-card-value" id="completedCount">0</div>
+            <div class="stat-card-footer">Завършени произшествия</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-people-carry stat-icon"></i>
+                <span class="stat-label">Екипи на смяна</span>
+            </div>
+            <div class="stat-card-value" id="onHoldCount">0</div>
+            <div class="stat-card-footer">Активни екипи</div>
+        </div>
+    </div>
+
+    <!-- Incidents Table Panel -->
+    <div class="panel-container">
+        <div class="panel-header">
+            <h2>Списък с произшествия</h2>
+            <div class="panel-controls">
+                <input type="text" id="searchInput" class="search-box" placeholder="Търси произшествие...">
+                <select id="filterStatus" class="filter-select">
+                    <option value="">Всички статуси</option>
+                    <option value="active">Активни</option>
+                    <option value="completed">Приключени</option>
+                    <option value="on-hold">Приостановени</option>
+                    <option value="cancelled">Отменени</option>
+                </select>
             </div>
         </div>
 
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-value" id="activeCount">0</div>
-                    <div class="stat-label">Активни</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-value" id="completedCount">0</div>
-                    <div class="stat-label">Приключени</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-value" id="onHoldCount">0</div>
-                    <div class="stat-label">Приостановени</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">Всички</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="incidents-container">
-            <div id="incidentsGrid" class="incidents-grid">
-                <div class="loading-card">Зареждане на произшествия...</div>
+        <div class="panel-content">
+            <div id="incidentsTableWrapper">
+                <table id="incidentsTable" class="incidents-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Тип</th>
+                            <th>Адрес</th>
+                            <th>Дата & Час</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentsTableBody">
+                        <tr class="loading-row">
+                            <td colspan="6">Зареждане на произшествия...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div id="emptyStateMessage" class="empty-state" style="display: none;">
+                <i class="fas fa-inbox empty-state-icon"></i>
                 <p>Няма произшествия</p>
                 <small>Започнете, като кликнете на "Добави произшествие"</small>
             </div>
+        </div>
+
+        <div class="panel-footer">
+            <span id="recordCount">0 записа</span>
         </div>
     </div>
 </div>

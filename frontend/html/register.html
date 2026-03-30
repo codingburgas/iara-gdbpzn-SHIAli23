@@ -2,45 +2,78 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - ГДПБЗН</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/register.css">
 </head>
 <body>
 
-<div class="page-wrapper">
+<div class="register-page">
     <div class="register-container">
-        <h1 class="title">Регистрация</h1>
+        <div class="register-graphic">
+            <div class="graphic-element"></div>
+            <div class="graphic-text">
+                <h2>Присъедини се</h2>
+                <p>към системата</p>
+            </div>
+        </div>
 
-        <form id="registerForm">
-            <div class="input-group">
-                <input type="text" id="full_name" placeholder="Въведи име">
+        <div class="register-box">
+            <div class="register-header">
+                <i class="fas fa-user-plus"></i>
+                <h1>Регистрация</h1>
+                <p>създай нов профил</p>
             </div>
 
-            <div class="input-group">
-                <input type="text" id="username" placeholder="Въведи потребителско име">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="full_name">Пълно име</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="full_name" placeholder="Въведи пълното си име" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Потребителско име</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-at"></i>
+                        <input type="text" id="username" placeholder="Въведи потребителско име" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Парола</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Въведи парола" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Роля</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-briefcase"></i>
+                        <select id="role" required>
+                            <option value="">Избери роля</option>
+                            <option value="operator">Оператор</option>
+                            <option value="firefighter">Пожарникар</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <i class="fas fa-check"></i> Регистрация
+                </button>
+            </form>
+
+            <div class="register-footer">
+                <p>Вече имаш акаунт? <a href="login.html">Вход</a></p>
             </div>
-
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Въведи парола">
-            </div>
-
-            <div class="input-group">
-                <select id="role">
-                    <option value="operator">Оператор</option>
-                    <option value="firefighter">Пожарникар</option>
-                    <option value="admin">Администратор</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-primary">Регистрация</button>
-        </form>
-
-        <p class="login-link">
-            Вече имаш акаунт? <a href="login.html">Вход</a>
-        </p>
+        </div>
     </div>
-
-    <div class="decorative-circle"></div>
 </div>
 
 <script src="../js/register.js"></script>

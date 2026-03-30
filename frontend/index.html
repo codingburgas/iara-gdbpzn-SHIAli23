@@ -2,20 +2,97 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <title>Trust - Online Courses</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ГДПБЗН - Информационна система</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<div class="home-container">
-    <h1>Информационна система на ГДПБЗН</h1>
-    <p>Добре дошли в системата</p>
-
-    <div class="buttons">
-        <a href="html/login.html" class="btn">Вход</a>
-        <a href="html/register.html" class="btn">Регистрация</a>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>ГДПБЗН</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#features">Функции</a></li>
+            <li><a href="#about">За системата</a></li>
+        </ul>
     </div>
-</div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Информационна система на ГДПБЗН</h1>
+        <p>Управление и координация на произшествия в реално време</p>
+        <div class="hero-buttons">
+            <a href="html/login.html" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Вход
+            </a>
+            <a href="html/register.html" class="btn btn-secondary">
+                <i class="fas fa-user-plus"></i> Регистрация
+            </a>
+        </div>
+    </div>
+    <div class="hero-graphic">
+        <div class="gradient-orb"></div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <h2>Основни функции</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fas fa-bell"></i>
+            <h3>Управление на произшествия</h3>
+            <p>Бързо създаване, преглед и управление на всички произшествия</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-users"></i>
+            <h3>Управление на екипи</h3>
+            <p>Организирайте и координирайте работните екипи</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-fire-truck"></i>
+            <h3>Управление на превозни средства</h3>
+            <p>Проследяване и контрол на всички превозни средства</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-clock"></i>
+            <h3>Планиране на смени</h3>
+            <p>Ефективно планиране на работни смени</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-chart-bar"></i>
+            <h3>Отчети и аналитика</h3>
+            <p>Детайлни статистики и анализ на произшествия</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-map-location-dot"></i>
+            <h3>GPS проследяване</h3>
+            <p>Реално време локализация на екипи и средства</p>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+    <h2>За системата</h2>
+    <div class="about-content">
+        <p>Модерната информационна система на ГДПБЗН предоставя интегрирано решение за управление на произшествия, екипи и ресурси. Системата е проектирана за максимална ефективност и лесна употреба.</p>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2026 ГДПБЗН. Всички права запазени.</p>
+    </div>
+</footer>
 
 </body>
 </html>

@@ -2,34 +2,57 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <title>Вход</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - ГДПБЗН</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/login.css">
 </head>
 <body>
 
-<div class="page-wrapper">
+<div class="login-page">
     <div class="login-container">
-        <h1 class="title">Вход в системата</h1>
-        <p class="subtitle">ГДПБЗН - България</p>
-
-        <form id="loginForm">
-            <div class="input-group">
-                <input type="text" id="username" placeholder="Въведи потребителско име">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Вход</h1>
+                <p>в информационната система</p>
             </div>
 
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Въведи парола">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Потребителско име</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Въведи потребителско име" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Парола</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Въведи парола" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Вход
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Нямаш акаунт? <a href="register.html">Регистрирай се</a></p>
             </div>
+        </div>
 
-            <button type="submit" class="btn-primary">Вход</button>
-        </form>
-
-        <p class="register-link">
-            Нямаш акаунт? <a href="register.html">Регистрация</a>
-        </p>
+        <div class="login-graphic">
+            <div class="graphic-element"></div>
+            <div class="graphic-text">
+                <h2>Добре дошли</h2>
+                <p>Управление на произшествия</p>
+            </div>
+        </div>
     </div>
-
-    <div class="decorative-circle"></div>
 </div>
 
 <script src="../js/login.js"></script>

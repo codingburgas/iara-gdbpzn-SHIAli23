@@ -1,43 +1,76 @@
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
     loadIncidents();
+    initializeMenuItems();
+    setupEventListeners();
+});
+
+// Initialize menu items
+function initializeMenuItems() {
     document.querySelectorAll(".menu-item").forEach((item, index) => {
         item.classList.remove("active");
         if (index === 0) item.classList.add("active");
     });
-});
+}
 
-// Toggle sidebar with content shift
-document.getElementById("menuBtn").addEventListener("click", () => {
+// Setup event listeners
+function setupEventListeners() {
+    // Sidebar toggle
+    const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
-    const content = document.querySelector(".content");
-    sidebar.classList.toggle("open");
     
-    // Shift content when sidebar opens
-    if (sidebar.classList.contains("open")) {
-        content.style.marginLeft = "270px";
-    } else {
-        content.style.marginLeft = "0";
-    }
-});
+    menuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+    });
 
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    window.location.href = "../index.html";
-});
+    // Close sidebar when clicking menu items
+    document.querySelectorAll(".menu-item").forEach(item => {
+        item.addEventListener("click", () => {
+            document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
+            item.classList.add("active");
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove("open");
+            }
+        });
+    });
 
-// Send to Create Incident Page
-document.getElementById("addIncidentBtn").addEventListener("click", () => {
-    window.location.href = "./create_incident.html";
-});
+    // Logout
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.addEventListener("click", () => {
+        window.location.href = "../index.html";
+    });
+
+    // Add Incident
+    const addIncidentBtn = document.getElementById("addIncidentBtn");
+    addIncidentBtn.addEventListener("click", () => {
+        window.location.href = "./create_incident.html";
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("input", filterIncidents);
+
+    // Filter functionality
+    const filterStatus = document.getElementById("filterStatus");
+    filterStatus.addEventListener("change", filterIncidents);
+
+    // Close sidebar on outside click
+    document.addEventListener("click", (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove("open");
+        }
+    });
+}
 
 // Fetch and populate incidents
 function loadIncidents() {
-    const grid = document.getElementById("incidentsGrid");
+    const tableBody = document.getElementById("incidentsTableBody");
     const emptyStateMessage = document.getElementById("emptyStateMessage");
+    const recordCount = document.getElementById("recordCount");
 
-    // Clear grid
-    grid.innerHTML = '<div class="loading-card">Зареждане на произшествия...</div>';
+    // Show loading state
+    tableBody.innerHTML = '<tr class="loading-row"><td colspan="6">Зареждане на произшествия...</td></tr>';
     emptyStateMessage.style.display = "none";
 
     // Fetch incidents
@@ -47,63 +80,107 @@ function loadIncidents() {
             return response.json();
         })
         .then(data => {
-            grid.innerHTML = "";
-
             if (!data.incidents || data.incidents.length === 0) {
-                emptyStateMessage.style.display = "block";
+                tableBody.innerHTML = "";
+                emptyStateMessage.style.display = "flex";
+                recordCount.textContent = "0 записа";
+                updateStats([], data.incidents || []);
                 return;
             }
 
-            // Calculate stats
-            let activeCount = 0, completedCount = 0, onHoldCount = 0;
-            
-            data.incidents.forEach(incident => {
-                const statusLower = (incident.status || "активно").toLowerCase();
-                if (statusLower === "активно" || statusLower === "в работа") activeCount++;
-                else if (statusLower === "приключено") completedCount++;
-                else if (statusLower === "приостановено") onHoldCount++;
-            });
+            // Store incidents globally for filtering
+            window.allIncidents = data.incidents;
 
             // Update stats
-            document.getElementById("activeCount").textContent = activeCount;
-            document.getElementById("completedCount").textContent = completedCount;
-            document.getElementById("onHoldCount").textContent = onHoldCount;
-            document.getElementById("totalCount").textContent = data.incidents.length;
+            updateStats(data.incidents, data.incidents);
 
-            // Create incident cards
-            data.incidents.forEach(incident => {
-                const card = document.createElement("div");
-                card.className = "incident-card";
-                const statusBadge = getStatusBadge(incident.status || "активно");
-                const formattedDate = formatDate(incident.date_time || incident.dateTime || new Date().toISOString());
+            // Populate table
+            populateTable(data.incidents);
 
-                card.innerHTML = `
-                    <div class="incident-header">
-                        <div>
-                            <div class="incident-id">#${incident.id || "N/A"}</div>
-                            <div class="incident-type">${incident.type || "Неизвестен тип"}</div>
-                            <div class="incident-address">${incident.address || "Адрес не е посочен"}</div>
-                        </div>
-                        <div>${statusBadge}</div>
-                    </div>
-                    <div class="incident-meta">
-                        <div class="incident-datetime">${formattedDate}</div>
-                        <button class="btn-details" onclick="viewIncidentDetails(${incident.id || 0})">
-                            Детайли
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+            // Update record count
+            recordCount.textContent = `${data.incidents.length} ${data.incidents.length === 1 ? "запис" : "записа"}`;
         })
         .catch(error => {
             console.error("Error loading incidents:", error);
-            grid.innerHTML = `
-                <div class="loading-card" style="color: #ff6b6b; text-align: center;">
-                    Грешка при зареждане на произшествия. Проверете връзката с сървъра.
-                </div>
-            `;
+            tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">Грешка при зареждане на произшествия</td></tr>`;
+            emptyStateMessage.style.display = "none";
         });
+}
+
+// Update statistics
+function updateStats(filtered, all) {
+    let activeCount = 0, completedCount = 0, onHoldCount = 0, totalCount = all.length;
+    
+    filtered.forEach(incident => {
+        const statusLower = (incident.status || "активно").toLowerCase();
+        if (statusLower === "активно" || statusLower === "в работа") activeCount++;
+        else if (statusLower === "приключено") completedCount++;
+        else if (statusLower === "приостановено") onHoldCount++;
+    });
+
+    document.getElementById("activeCount").textContent = activeCount;
+    document.getElementById("completedCount").textContent = completedCount;
+    document.getElementById("onHoldCount").textContent = onHoldCount;
+    document.getElementById("totalCount").textContent = totalCount;
+}
+
+// Populate table with incidents
+function populateTable(incidents) {
+    const tableBody = document.getElementById("incidentsTableBody");
+    const emptyStateMessage = document.getElementById("emptyStateMessage");
+    const recordCount = document.getElementById("recordCount");
+
+    tableBody.innerHTML = "";
+
+    if (incidents.length === 0) {
+        tableBody.innerHTML = "";
+        emptyStateMessage.style.display = "flex";
+        recordCount.textContent = "0 записа";
+        return;
+    }
+
+    emptyStateMessage.style.display = "none";
+
+    incidents.forEach(incident => {
+        const row = document.createElement("tr");
+        const statusBadge = getStatusBadge(incident.status || "активно");
+        const formattedDate = formatDate(incident.date_time || incident.dateTime || new Date().toISOString());
+
+        row.innerHTML = `
+            <td>${incident.id || "N/A"}</td>
+            <td>${incident.type || "Неизвестен"}</td>
+            <td>${incident.address || "N/A"}</td>
+            <td>${formattedDate}</td>
+            <td>${statusBadge}</td>
+            <td><button class="btn-action" onclick="viewIncidentDetails(${incident.id || 0})">Преглед</button></td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    recordCount.textContent = `${incidents.length} ${incidents.length === 1 ? "запис" : "записа"}`;
+}
+
+// Filter incidents
+function filterIncidents() {
+    if (!window.allIncidents) return;
+
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const filterStatus = document.getElementById("filterStatus").value;
+
+    const filtered = window.allIncidents.filter(incident => {
+        const matchSearch = 
+            (incident.id + "").includes(searchTerm) ||
+            (incident.type || "").toLowerCase().includes(searchTerm) ||
+            (incident.address || "").toLowerCase().includes(searchTerm);
+
+        const matchStatus = !filterStatus || 
+            (incident.status || "активно").toLowerCase().includes(filterStatus.toLowerCase());
+
+        return matchSearch && matchStatus;
+    });
+
+    populateTable(filtered);
+    updateStats(filtered, window.allIncidents);
 }
 
 // Get status badge HTML
@@ -140,6 +217,5 @@ function formatDate(dateString) {
 // View incident details
 function viewIncidentDetails(incidentId) {
     console.log("Viewing incident:", incidentId);
-    // TODO: implement navigation to incident details page
     alert(`Детайли на произшествие ${incidentId} (към разработка)`);
 }
