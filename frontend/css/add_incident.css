@@ -1,0 +1,313 @@
+/* Add Incident Page Styles */
+
+.add-incident-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0e27 0%, #05080f 50%, #0a0e1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.add-incident-card {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(20, 24, 41, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 107, 53, 0.15);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(255, 107, 53, 0.1);
+}
+
+.add-incident-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.add-incident-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FF8C42, #FF6B35);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 10px 0;
+}
+
+.add-incident-header p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Form Styles */
+.add-incident-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-label i {
+    color: #FF6B35;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #FF6B35;
+    background: rgba(255, 107, 53, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Select Dropdown */
+.form-control[type="select"],
+select.form-control {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23FF6B35' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+select.form-control option {
+    background: #0a0e27;
+    color: white;
+    padding: 8px 12px;
+}
+
+select.form-control option:hover {
+    background: #FF6B35;
+}
+
+/* Textarea */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #FF6B35, #FF8C42);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-color: rgba(255, 107, 53, 0.3);
+}
+
+/* Success Message */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+    animation: slideIn 0.4s ease;
+}
+
+.success-icon {
+    font-size: 60px;
+    color: #4caf50;
+    margin-bottom: 20px;
+}
+
+.success-message h2 {
+    font-size: 24px;
+    color: white;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+}
+
+.success-message p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Error Message */
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    color: #ff9999;
+    font-size: 14px;
+    animation: shake 0.3s ease;
+}
+
+.error-message i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* Loading State */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-submit:disabled {
+    transform: none;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .add-incident-container {
+        padding: 20px 10px;
+    }
+
+    .add-incident-card {
+        padding: 30px 20px;
+    }
+
+    .add-incident-header h1 {
+        font-size: 24px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        flex: 1;
+        min-width: 100%;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .add-incident-container {
+        min-height: auto;
+        padding: 15px 10px;
+    }
+
+    .add-incident-card {
+        padding: 20px 15px;
+    }
+
+    .add-incident-header {
+        margin-bottom: 20px;
+    }
+
+    .add-incident-header h1 {
+        font-size: 20px;
+    }
+
+    .add-incident-header p {
+        font-size: 12px;
+    }
+
+    .add-incident-form {
+        gap: 16px;
+    }
+
+    .form-label {
+        font-size: 12px;
+    }
+
+    .form-control {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+}

@@ -44,7 +44,7 @@ function setupEventListeners() {
     // Add Incident
     const addIncidentBtn = document.getElementById("addIncidentBtn");
     addIncidentBtn.addEventListener("click", () => {
-        window.location.href = "./create_incident.html";
+        window.location.href = "./add_incident.html";
     });
 
     // Search functionality

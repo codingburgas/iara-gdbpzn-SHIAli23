@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добави произшествие</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/add_incident.css">
+</head>
+<body>
+
+<div class="add-incident-container">
+    <div class="add-incident-card">
+        <div class="add-incident-header">
+            <h1>Добави ново произшествие</h1>
+            <p>Попълнете информацията за произшествието</p>
+        </div>
+
+        <form id="addIncidentForm" class="add-incident-form">
+            <!-- Incident Type -->
+            <div class="form-group">
+                <label for="incidentType" class="form-label">
+                    <i class="fas fa-exclamation-triangle"></i> Тип произшествие
+                </label>
+                <select id="incidentType" name="type" class="form-control" required>
+                    <option value="">-- Избери тип --</option>
+                    <option value="пожар">Пожар</option>
+                    <option value="катастрофа">Катастрофа</option>
+                    <option value="спасяване">Спасяване</option>
+                    <option value="медицинска_помощ">Медицинска помощ</option>
+                    <option value="опасен_материал">Опасен материал</option>
+                    <option value="загрижване">Загрижване</option>
+                    <option value="други">Други</option>
+                </select>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label for="address" class="form-label">
+                    <i class="fas fa-map-marker-alt"></i> Адрес
+                </label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="Въведи адреса на произшествието" required>
+            </div>
+
+            <!-- Latitude -->
+            <div class="form-group">
+                <label for="latitude" class="form-label">
+                    <i class="fas fa-compass"></i> Широчина (GPS)
+                </label>
+                <input type="number" id="latitude" name="latitude" class="form-control" placeholder="Напр. 42.6977" step="0.000001">
+            </div>
+
+            <!-- Longitude -->
+            <div class="form-group">
+                <label for="longitude" class="form-label">
+                    <i class="fas fa-compass"></i> Дължина (GPS)
+                </label>
+                <input type="number" id="longitude" name="longitude" class="form-control" placeholder="Напр. 23.3219" step="0.000001">
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">
+                    <i class="fas fa-align-left"></i> Описание
+                </label>
+                <textarea id="description" name="description" class="form-control" placeholder="Допълнителни детайли за произшествието" rows="4"></textarea>
+            </div>
+
+            <!-- Team Selection -->
+            <div class="form-group">
+                <label for="teamId" class="form-label">
+                    <i class="fas fa-users"></i> Назначи екип
+                </label>
+                <select id="teamId" name="team_id" class="form-control">
+                    <option value="">-- Избери екип (опционално) --</option>
+                </select>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-check"></i> Добави произшествие
+                </button>
+                <button type="button" class="btn btn-cancel" id="cancelBtn">
+                    <i class="fas fa-times"></i> Отмени
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Произшествие добавено</h2>
+            <p id="successText">Произшествието е успешно регистрирано в системата.</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText">Възникна грешка при добавяне на произшествието.</span>
+        </div>
+    </div>
+</div>
+
+<script src="../js/add_incident.js"></script>
+
+</body>
+</html>

@@ -16,15 +16,17 @@ def create():
     address = data.get('address')
     latitude = data.get('latitude')
     longitude = data.get('longitude')
+    description = data.get('description')
+    team_id = data.get('team_id')
 
     if not incident_type or not address:
         return jsonify({"error": "Missing required fields"}), 400
 
     success, message, incident_id = create_incident(
-        incident_type, address, latitude, longitude
+        incident_type, address, latitude, longitude, description, team_id
     )
 
-    return jsonify({"message": message}), 201
+    return jsonify({"message": message, "incident_id": incident_id}), 201
 
 
 @incident_bp.route('/list', methods=['GET'])

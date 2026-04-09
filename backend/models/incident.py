@@ -9,6 +9,8 @@ class Incident(db.Model):
     address = db.Column(db.String(200), nullable=False)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
     status = db.Column(db.String(20), default='new')
     created_at = db.Column(db.DateTime, nullable=False)
 

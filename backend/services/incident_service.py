@@ -3,12 +3,14 @@ from models.incident import Incident
 from database import db
 
 
-def create_incident(incident_type, address, latitude=None, longitude=None):
+def create_incident(incident_type, address, latitude=None, longitude=None, description=None, team_id=None):
     new_incident = Incident(
         type=incident_type,
         address=address,
         latitude=latitude,
         longitude=longitude,
+        description=description,
+        team_id=team_id,
         created_at=datetime.now()
     )
 
@@ -29,6 +31,8 @@ def get_all_incidents():
             "address": inc.address,
             "latitude": inc.latitude,
             "longitude": inc.longitude,
+            "description": inc.description,
+            "team_id": inc.team_id,
             "status": inc.status,
             "created_at": inc.created_at.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -48,6 +52,8 @@ def get_incident_by_id(incident_id):
         "address": incident.address,
         "latitude": incident.latitude,
         "longitude": incident.longitude,
+        "description": incident.description,
+        "team_id": incident.team_id,
         "status": incident.status,
         "created_at": incident.created_at.strftime("%Y-%m-%d %H:%M:%S")
     }
