@@ -3,7 +3,9 @@ from services.incident_service import (
     create_incident,
     get_all_incidents,
     get_incident_by_id,
-    update_incident_status
+    update_incident_status,
+    delete_incident,
+    delete_all_incidents
 )
 
 incident_bp = Blueprint('incidents', __name__, url_prefix='/incidents')
@@ -63,5 +65,37 @@ def update_status(incident_id):
 
     if not success:
         return jsonify({"error": message}), 404
+
+    return jsonify({"message": message}), 200
+
+
+@incident_bp.route('/<int:incident_id>', methods=['DELETE'])
+def delete(incident_id):
+    user_role = request.headers.get('user-role', '').lower()
+    
+    # Only admins can delete incidents
+    if user_role != 'admin':
+        return jsonify({"error": "Only administrators can delete incidents"}), 403
+
+    success, message = delete_incident(incident_id)
+
+    if not success:
+        return jsonify({"error": message}), 404
+
+    return jsonify({"message": message}), 200
+
+
+@incident_bp.route('/delete-all', methods=['DELETE'])
+def delete_all():
+    user_role = request.headers.get('user-role', '').lower()
+    
+    # Only admins can delete all incidents
+    if user_role != 'admin':
+        return jsonify({"error": "Only administrators can delete all incidents"}), 403
+
+    success, message = delete_all_incidents()
+
+    if not success:
+        return jsonify({"error": message}), 400
 
     return jsonify({"message": message}), 200

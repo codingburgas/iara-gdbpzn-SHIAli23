@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добави произшествие</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/add_incident.css">
 </head>
@@ -43,20 +44,50 @@
                 <input type="text" id="address" name="address" class="form-control" placeholder="Въведи адреса на произшествието" required>
             </div>
 
-            <!-- Latitude -->
-            <div class="form-group">
-                <label for="latitude" class="form-label">
-                    <i class="fas fa-compass"></i> Широчина (GPS)
-                </label>
-                <input type="number" id="latitude" name="latitude" class="form-control" placeholder="Напр. 42.6977" step="0.000001">
+            <!-- Location Input Mode Toggle -->
+            <div class="location-mode-toggle">
+                <button type="button" class="mode-btn active" id="coordinatesModeBtn" data-mode="coordinates">
+                    <i class="fas fa-keyboard"></i> Координати
+                </button>
+                <button type="button" class="mode-btn" id="mapModeBtn" data-mode="map">
+                    <i class="fas fa-map"></i> Избери на карта
+                </button>
             </div>
 
-            <!-- Longitude -->
-            <div class="form-group">
-                <label for="longitude" class="form-label">
-                    <i class="fas fa-compass"></i> Дължина (GPS)
-                </label>
-                <input type="number" id="longitude" name="longitude" class="form-control" placeholder="Напр. 23.3219" step="0.000001">
+            <!-- Coordinates Input Section -->
+            <div id="coordinatesSection" class="location-section active">
+                <!-- Latitude -->
+                <div class="form-group">
+                    <label for="latitude" class="form-label">
+                        <i class="fas fa-compass"></i> Широчина (GPS)
+                    </label>
+                    <input type="number" id="latitude" name="latitude" class="form-control" placeholder="Напр. 42.6977" step="0.000001">
+                </div>
+
+                <!-- Longitude -->
+                <div class="form-group">
+                    <label for="longitude" class="form-label">
+                        <i class="fas fa-compass"></i> Дължина (GPS)
+                    </label>
+                    <input type="number" id="longitude" name="longitude" class="form-control" placeholder="Напр. 23.3219" step="0.000001">
+                </div>
+            </div>
+
+            <!-- Map Selection Section -->
+            <div id="mapSection" class="location-section">
+                <div class="map-info">
+                    <p><i class="fas fa-info-circle"></i> Щракни на картата, за да избереш локацията на произшествието</p>
+                </div>
+                <div id="incidentMap" class="incident-map"></div>
+                <div class="map-selected-coords">
+                    <div class="coord-display">
+                        <label>Избрана локация:</label>
+                        <span id="mapLatitude">--</span>, <span id="mapLongitude">--</span>
+                    </div>
+                    <button type="button" class="btn btn-small" id="useMapCoordsBtn">
+                        <i class="fas fa-check"></i> Използвай тази локация
+                    </button>
+                </div>
             </div>
 
             <!-- Description -->
@@ -105,6 +136,7 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../js/add_incident.js"></script>
 
 </body>

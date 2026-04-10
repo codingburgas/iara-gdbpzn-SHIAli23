@@ -259,11 +259,15 @@ function viewIncidentDetails(incidentId) {
             
             // Show status change controls only for admins
             const statusChangeContainer = document.getElementById("statusChangeContainer");
+            const deleteIncidentBtn = document.getElementById("deleteIncidentBtn");
+            
             if (window.currentUser && window.currentUser.role && window.currentUser.role.toLowerCase() === 'admin') {
                 statusChangeContainer.style.display = "flex";
+                deleteIncidentBtn.style.display = "block";
                 document.getElementById("newStatusSelect").value = incident.status || "активно";
             } else {
                 statusChangeContainer.style.display = "none";
+                deleteIncidentBtn.style.display = "none";
             }
             
             // Open modal
@@ -323,3 +327,43 @@ window.addEventListener("click", (event) => {
         closeIncidentModal();
     }
 });
+
+// Delete incident with confirmation
+function deleteIncidentConfirm() {
+    if (!window.currentIncident) return;
+    
+    const incidentId = window.currentIncident.id;
+    const confirmDelete = confirm(`Наистина ли искаш да изтриеш произшествието #${incidentId}? Това действие е необратимо.`);
+    
+    if (!confirmDelete) return;
+    
+    deleteIncident(incidentId);
+}
+
+// Delete incident function
+function deleteIncident(incidentId) {
+    fetch(`http://127.0.0.1:5000/incidents/${incidentId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "user-role": window.currentUser.role
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || "Грешка при изтриване на произшествието");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Произшествието е успешно изтрито!");
+            closeIncidentModal();
+            loadIncidents();
+        })
+        .catch(error => {
+            console.error("Error deleting incident:", error);
+            alert(error.message || "Възникна грешка при изтриване на произшествието");
+        });
+}
