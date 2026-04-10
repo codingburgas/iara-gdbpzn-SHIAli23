@@ -34,10 +34,11 @@ def get_all_incidents():
             "description": inc.description,
             "team_id": inc.team_id,
             "status": inc.status,
+            "date_time": inc.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "created_at": inc.created_at.strftime("%Y-%m-%d %H:%M:%S")
         })
 
-    return result
+    return {"incidents": result}
 
 
 def get_incident_by_id(incident_id):
@@ -57,3 +58,15 @@ def get_incident_by_id(incident_id):
         "status": incident.status,
         "created_at": incident.created_at.strftime("%Y-%m-%d %H:%M:%S")
     }
+
+
+def update_incident_status(incident_id, new_status):
+    incident = Incident.query.get(incident_id)
+
+    if not incident:
+        return False, "Incident not found"
+
+    incident.status = new_status
+    db.session.commit()
+
+    return True, "Incident status updated successfully"

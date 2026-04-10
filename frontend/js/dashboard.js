@@ -3,7 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
     loadIncidents();
     initializeMenuItems();
     setupEventListeners();
+    checkUserRole();
 });
+
+// Check user role from localStorage
+function checkUserRole() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        window.location.href = "../index.html";
+    }
+    window.currentUser = JSON.parse(currentUser);
+}
 
 // Initialize menu items
 function initializeMenuItems() {
@@ -38,6 +48,7 @@ function setupEventListeners() {
     // Logout
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem('currentUser');
         window.location.href = "../index.html";
     });
 
@@ -165,7 +176,7 @@ function filterIncidents() {
     if (!window.allIncidents) return;
 
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-    const filterStatus = document.getElementById("filterStatus").value;
+    const filterStatus = document.getElementById("filterStatus").value.toLowerCase();
 
     const filtered = window.allIncidents.filter(incident => {
         const matchSearch = 
@@ -173,8 +184,8 @@ function filterIncidents() {
             (incident.type || "").toLowerCase().includes(searchTerm) ||
             (incident.address || "").toLowerCase().includes(searchTerm);
 
-        const matchStatus = !filterStatus || 
-            (incident.status || "активно").toLowerCase().includes(filterStatus.toLowerCase());
+        const incidentStatusLower = (incident.status || "активно").toLowerCase();
+        const matchStatus = !filterStatus || incidentStatusLower === filterStatus;
 
         return matchSearch && matchStatus;
     });
@@ -216,6 +227,99 @@ function formatDate(dateString) {
 
 // View incident details
 function viewIncidentDetails(incidentId) {
-    console.log("Viewing incident:", incidentId);
-    alert(`Детайли на произшествие ${incidentId} (към разработка)`);
+    fetch(`http://127.0.0.1:5000/incidents/${incidentId}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Грешка при зареждане на детайлите");
+            return response.json();
+        })
+        .then(incident => {
+            // Set modal content
+            document.getElementById("detailId").textContent = incident.id || "-";
+            document.getElementById("detailType").textContent = incident.type || "-";
+            document.getElementById("detailAddress").textContent = incident.address || "-";
+            document.getElementById("detailDateTime").textContent = formatDate(incident.created_at) || "-";
+            document.getElementById("detailDescription").textContent = incident.description || "(Няма описание)";
+            
+            // GPS coordinates
+            if (incident.latitude && incident.longitude) {
+                document.getElementById("detailCoordinates").textContent = 
+                    `${incident.latitude}, ${incident.longitude}`;
+            } else {
+                document.getElementById("detailCoordinates").textContent = "-";
+            }
+            
+            document.getElementById("detailTeam").textContent = incident.team_id ? `Екип ID: ${incident.team_id}` : "Не е определен";
+            
+            // Status
+            const statusBadge = getStatusBadge(incident.status);
+            document.getElementById("detailStatus").innerHTML = statusBadge;
+            
+            // Store current incident for updates
+            window.currentIncident = incident;
+            
+            // Show status change controls only for admins
+            const statusChangeContainer = document.getElementById("statusChangeContainer");
+            if (window.currentUser && window.currentUser.role && window.currentUser.role.toLowerCase() === 'admin') {
+                statusChangeContainer.style.display = "flex";
+                document.getElementById("newStatusSelect").value = incident.status || "активно";
+            } else {
+                statusChangeContainer.style.display = "none";
+            }
+            
+            // Open modal
+            document.getElementById("incidentModal").style.display = "flex";
+        })
+        .catch(error => {
+            console.error("Error loading incident details:", error);
+            alert("Грешка при зареждане на детайлите на произшествието");
+        });
 }
+
+// Close incident modal
+function closeIncidentModal() {
+    document.getElementById("incidentModal").style.display = "none";
+}
+
+// Update incident status
+function updateIncidentStatus() {
+    if (!window.currentIncident) return;
+    
+    const newStatus = document.getElementById("newStatusSelect").value;
+    const incidentId = window.currentIncident.id;
+    
+    fetch(`http://127.0.0.1:5000/incidents/${incidentId}/status`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            status: newStatus,
+            user_role: window.currentUser.role
+        })
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || "Грешка при обновяване на статуса");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Статусът е успешно обновен!");
+            closeIncidentModal();
+            loadIncidents();
+        })
+        .catch(error => {
+            console.error("Error updating status:", error);
+            alert(error.message);
+        });
+}
+
+// Close modal when clicking outside
+window.addEventListener("click", (event) => {
+    const modal = document.getElementById("incidentModal");
+    if (event.target === modal) {
+        closeIncidentModal();
+    }
+});

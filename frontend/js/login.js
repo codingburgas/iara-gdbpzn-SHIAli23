@@ -13,6 +13,8 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     const data = await response.json();
 
     if (response.ok) {
+        // Store user data in localStorage
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
         alert("Успешен вход!");
         window.location.href = "../html/dashboard.html";
     } else {

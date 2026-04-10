@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from services.incident_service import (
     create_incident,
     get_all_incidents,
-    get_incident_by_id
+    get_incident_by_id,
+    update_incident_status
 )
 
 incident_bp = Blueprint('incidents', __name__, url_prefix='/incidents')
@@ -43,3 +44,24 @@ def get_incident(incident_id):
         return jsonify({"error": "Incident not found"}), 404
 
     return jsonify(incident), 200
+
+
+@incident_bp.route('/<int:incident_id>/status', methods=['PUT'])
+def update_status(incident_id):
+    data = request.json
+    user_role = data.get('user_role')
+    new_status = data.get('status')
+
+    # Only admins can change status
+    if not user_role or user_role.lower() != 'admin':
+        return jsonify({"error": "Only administrators can change incident status"}), 403
+
+    if not new_status:
+        return jsonify({"error": "Status is required"}), 400
+
+    success, message = update_incident_status(incident_id, new_status)
+
+    if not success:
+        return jsonify({"error": message}), 404
+
+    return jsonify({"message": message}), 200
