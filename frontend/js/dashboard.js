@@ -35,9 +35,25 @@ function setupEventListeners() {
 
     // Close sidebar when clicking menu items
     document.querySelectorAll(".menu-item").forEach(item => {
-        item.addEventListener("click", () => {
+        item.addEventListener("click", (e) => {
             document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
             item.classList.add("active");
+            
+            // Get page name and navigate
+            const page = item.getAttribute("data-page");
+            const navigationMap = {
+                "incidents": "./dashboard.html",
+                "firefighters": "./firefighters.html",
+                "teams": "./teams.html",
+                "vehicles": "./vehicles.html",
+                "shifts": "./shifts.html",
+                "settings": "./settings.html"
+            };
+            
+            if (navigationMap[page]) {
+                window.location.href = navigationMap[page];
+            }
+            
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove("open");

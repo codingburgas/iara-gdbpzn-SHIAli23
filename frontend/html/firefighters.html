@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пожарникари</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/firefighters.css">
+    <link rel="stylesheet" href="../css/modal.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <button id="menuBtn" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">Пожарникари</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-subtitle">Управление на пожарникари</span>
+        <button id="logoutBtn" class="topbar-logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <h2>ГДПБЗН</h2>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="menu">
+            <li class="menu-item" data-page="incidents">
+                <i class="fas fa-bell"></i>
+                <span>Произшествия</span>
+            </li>
+            <li class="menu-item active" data-page="firefighters">
+                <i class="fas fa-person"></i>
+                <span>Пожарникари</span>
+            </li>
+            <li class="menu-item" data-page="teams">
+                <i class="fas fa-users"></i>
+                <span>Екипи</span>
+            </li>
+            <li class="menu-item" data-page="vehicles">
+                <i class="fas fa-fire-truck"></i>
+                <span>Автомобили</span>
+            </li>
+            <li class="menu-item" data-page="shifts">
+                <i class="fas fa-clock"></i>
+                <span>Смени</span>
+            </li>
+            <li class="menu-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="content">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Пожарникари</h1>
+            <p>Преглед на всички регистрирани пожарникари</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-users stat-icon"></i>
+                <span class="stat-label">Общо пожарникари</span>
+            </div>
+            <div class="stat-card-value" id="totalCount">0</div>
+            <div class="stat-card-footer">Всички регистрирани</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-check-circle stat-icon"></i>
+                <span class="stat-label">Активни</span>
+            </div>
+            <div class="stat-card-value" id="activeCount">0</div>
+            <div class="stat-card-footer">На дежурство</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-bed stat-icon"></i>
+                <span class="stat-label">На отпуск</span>
+            </div>
+            <div class="stat-card-value" id="vacationCount">0</div>
+            <div class="stat-card-footer">На почивка</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <i class="fas fa-ambulance stat-icon"></i>
+                <span class="stat-label">Болни</span>
+            </div>
+            <div class="stat-card-value" id="sickCount">0</div>
+            <div class="stat-card-footer">На болнично отпускане</div>
+        </div>
+    </div>
+
+    <!-- Firefighters Panel -->
+    <div class="panel-container">
+        <div class="panel-header">
+            <h2>Списък с пожарникари</h2>
+            <div class="panel-controls">
+                <input type="text" id="searchInput" class="search-box" placeholder="Търси по име или потребителско име...">
+            </div>
+        </div>
+
+        <div class="panel-content">
+            <div id="firefightersTableWrapper">
+                <table id="firefightersTable" class="firefighters-table">
+                    <thead>
+                        <tr>
+                            <th>Име</th>
+                            <th>Номер</th>
+                            <th>Должност</th>
+                            <th>Статус</th>
+                            <th>Телефон</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="firefightersTableBody">
+                        <tr class="loading-row">
+                            <td colspan="6">Зареждане на пожарникари...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyStateMessage" class="empty-state" style="display: none;">
+                <i class="fas fa-inbox empty-state-icon"></i>
+                <h3>Няма пожарникари</h3>
+                <p>Добавете първи пожарникар</p>
+            </div>
+        </div>
+        
+        <div class="panel-footer">
+            <span id="recordCount">0 записа</span>
+        </div>
+    </div>
+</div>
+
+<!-- View Firefighter Details Modal -->
+<div id="firefighterDetailsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Детайли на пожарникар</h2>
+            <button type="button" class="modal-close" onclick="closeDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-group">
+                <label>Име:</label>
+                <span id="detailName">-</span>
+            </div>
+            <div class="detail-group">
+                <label>Потребителско име:</label>
+                <span id="detailNumber">-</span>
+            </div>
+            <div class="detail-group">
+                <label>Должност:</label>
+                <span id="detailRole">-</span>
+            </div>
+            <div class="detail-group">
+                <label>Статус:</label>
+                <div id="detailStatus">-</div>
+            </div>
+            <div class="detail-group">
+                <label>Телефон:</label>
+                <span id="detailPhone">-</span>
+            </div>
+            <div class="detail-group">
+                <label>Email:</label>
+                <span id="detailEmail">-</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeDetailsModal()">Затвори</button>
+            <button type="button" class="btn-danger" id="deleteDetailsBtn" onclick="if(window.currentFirefighter) deleteFirefighter(window.currentFirefighter.id)">Премахни</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/firefighters.js"></script>
+
+</body>
+</html>
