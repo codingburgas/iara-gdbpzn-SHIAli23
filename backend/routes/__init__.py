@@ -4,6 +4,7 @@ from routes.incident_routes import incident_bp
 from routes.team_routes import team_bp
 from routes.vehicle_routes import vehicle_bp
 from routes.firefighter_routes import firefighter_bp
+from routes.user_routes import user_bp
 
 
 def register_blueprints(app):
@@ -12,3 +13,4 @@ def register_blueprints(app):
     app.register_blueprint(team_bp)
     app.register_blueprint(vehicle_bp)
     app.register_blueprint(firefighter_bp)
+    app.register_blueprint(user_bp)

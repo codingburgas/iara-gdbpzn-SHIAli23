@@ -1,6 +1,7 @@
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
-    checkUserRole();
+    if (!checkUserRole()) return;
+    applyRoleBasedMenuVisibility();
     loadFirefighters();
     initializeMenuItems();
     setupEventListeners();
@@ -11,6 +12,7 @@ function checkUserRole() {
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
         window.location.href = "../index.html";
+        return false;
     }
     
     window.currentUser = JSON.parse(currentUser);
@@ -24,17 +26,32 @@ function checkUserRole() {
             <h3>Доступ забранен</h3>
             <p>Само администратори могат да видят страницата на пожарниларите</p>
         `;
-        document.getElementById("addFirefighterBtn").style.display = 'none';
+        const addFirefighterBtn = document.getElementById("addFirefighterBtn");
+        if (addFirefighterBtn) addFirefighterBtn.style.display = 'none';
     }
+
+    return true;
+}
+
+function applyRoleBasedMenuVisibility() {
+    const role = (window.currentUser?.role || "").toLowerCase();
+
+    document.querySelectorAll('[data-admin-only="true"]').forEach(el => {
+        el.style.display = role === "admin" ? "" : "none";
+    });
+
+    ["teams", "vehicles", "shifts", "settings"].forEach(page => {
+        document.querySelectorAll(`[data-page="${page}"]`).forEach(el => (el.style.display = "none"));
+    });
 }
 
 // Initialize menu items
 function initializeMenuItems() {
     document.querySelectorAll(".menu-item").forEach((item, index) => {
         item.classList.remove("active");
-        item.addEventListener("click", () => {
+        item.addEventListener("click", (e) => {
             const page = item.getAttribute("data-page");
-            handleMenuNavigation(page);
+            handleMenuNavigation(page, e);
         });
     });
     
@@ -43,17 +60,14 @@ function initializeMenuItems() {
 }
 
 // Handle menu navigation
-function handleMenuNavigation(page) {
+function handleMenuNavigation(page, clickEvent) {
     document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
-    event.target.closest(".menu-item").classList.add("active");
+    clickEvent?.target.closest(".menu-item")?.classList.add("active");
     
     const navigationMap = {
-        "incidents": "../html/dashboard.html",
+        "incidents": "./dashboard.html",
         "firefighters": "./firefighters.html",
-        "teams": "./teams.html",
-        "vehicles": "./vehicles.html",
-        "shifts": "./shifts.html",
-        "settings": "./settings.html"
+        "profile": "./profile.html"
     };
     
     if (navigationMap[page]) {

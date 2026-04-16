@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профил</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <button id="menuBtn" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">Профил</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-subtitle">Управление на профил</span>
+        <button id="logoutBtn" class="topbar-logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <h2>ГДПБЗН</h2>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="menu">
+            <li class="menu-item" data-page="incidents">
+                <i class="fas fa-bell"></i>
+                <span>Произшествия</span>
+            </li>
+            <li class="menu-item" data-page="firefighters" data-admin-only="true">
+                <i class="fas fa-person"></i>
+                <span>Пожарникари</span>
+            </li>
+            <li class="menu-item active" data-page="profile">
+                <i class="fas fa-id-badge"></i>
+                <span>Профил</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="content">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Моят профил</h1>
+            <p>Промени твоите лични данни</p>
+        </div>
+    </div>
+
+    <div class="panel-container">
+        <div class="panel-header">
+            <h2>Профилна информация</h2>
+        </div>
+
+        <div class="panel-content">
+            <form id="profileForm" class="profile-form">
+                <div class="profile-grid">
+                    <div class="form-group">
+                        <label for="fullName">Пълно име</label>
+                        <input type="text" id="fullName" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Потребителско име</label>
+                        <input type="text" id="username" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" placeholder="(по желание)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Роля</label>
+                        <input type="text" id="role" disabled />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">Нова парола</label>
+                        <input type="password" id="newPassword" placeholder="(остави празно за без промяна)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Потвърди парола</label>
+                        <input type="password" id="confirmPassword" placeholder="(остави празно за без промяна)" />
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit" class="btn-add-primary" id="saveProfileBtn">
+                        <i class="fas fa-save"></i> Запази
+                    </button>
+                </div>
+
+                <div id="profileMessage" class="profile-message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../js/profile.js"></script>
+</body>
+</html>

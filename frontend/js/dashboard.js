@@ -1,9 +1,10 @@
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
+    if (!checkUserRole()) return;
+    applyRoleBasedMenuVisibility();
     loadIncidents();
     initializeMenuItems();
     setupEventListeners();
-    checkUserRole();
 });
 
 // Check user role from localStorage
@@ -11,8 +12,24 @@ function checkUserRole() {
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
         window.location.href = "../index.html";
+        return false;
     }
     window.currentUser = JSON.parse(currentUser);
+    return true;
+}
+
+function applyRoleBasedMenuVisibility() {
+    const role = (window.currentUser?.role || "").toLowerCase();
+
+    // Hide admin-only items for non-admin users
+    document.querySelectorAll('[data-admin-only="true"]').forEach(el => {
+        el.style.display = role === "admin" ? "" : "none";
+    });
+
+    // Hide pages that don't exist yet
+    ["teams", "vehicles", "shifts", "settings"].forEach(page => {
+        document.querySelectorAll(`[data-page="${page}"]`).forEach(el => (el.style.display = "none"));
+    });
 }
 
 // Initialize menu items
@@ -44,10 +61,7 @@ function setupEventListeners() {
             const navigationMap = {
                 "incidents": "./dashboard.html",
                 "firefighters": "./firefighters.html",
-                "teams": "./teams.html",
-                "vehicles": "./vehicles.html",
-                "shifts": "./shifts.html",
-                "settings": "./settings.html"
+                "profile": "./profile.html"
             };
             
             if (navigationMap[page]) {

@@ -1,0 +1,72 @@
+.profile-form {
+    padding: 24px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 22px;
+}
+
+.profile-form .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.profile-form .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(10, 14, 39, 0.4);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-form .form-group input:focus {
+    border-color: rgba(255, 140, 66, 0.7);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+}
+
+.profile-form .form-group input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.profile-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.profile-message {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(20, 24, 41, 0.6);
+    color: var(--text-secondary);
+}
+
+.profile-message.success {
+    border-color: rgba(76, 175, 80, 0.35);
+    background: rgba(76, 175, 80, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.profile-message.error {
+    border-color: rgba(244, 67, 54, 0.35);
+    background: rgba(244, 67, 54, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
