@@ -15,12 +15,9 @@ class Incident(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
     team = db.relationship('Team', backref='incidents')
 
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    creator = db.relationship('User', backref='created_incidents')
-
     status = db.Column(db.String(20), default='new')
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Incident {self.id}>'

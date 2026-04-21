@@ -4,6 +4,12 @@ from database import db
 from sqlalchemy import text
 
 
+from datetime import datetime
+from models.incident import Incident
+from database import db
+from sqlalchemy import text
+
+
 def create_incident(incident_type, address, latitude=None, longitude=None, description=None, team_id=None):
     new_incident = Incident(
         type=incident_type,
@@ -11,14 +17,14 @@ def create_incident(incident_type, address, latitude=None, longitude=None, descr
         latitude=latitude,
         longitude=longitude,
         description=description,
-        team_id=team_id,
-        created_at=datetime.now()
+        team_id=team_id
     )
 
     db.session.add(new_incident)
     db.session.commit()
 
     return True, "Incident created successfully", new_incident.id
+
 
 
 def get_all_incidents():
