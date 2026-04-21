@@ -1,4 +1,5 @@
 from database import db
+from datetime import datetime
 
 
 class Incident(db.Model):
@@ -10,9 +11,16 @@ class Incident(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     description = db.Column(db.Text, nullable=True)
+
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
+    team = db.relationship('Team', backref='incidents')
+
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    creator = db.relationship('User', backref='created_incidents')
+
     status = db.Column(db.String(20), default='new')
-    created_at = db.Column(db.DateTime, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Incident {self.id}>'

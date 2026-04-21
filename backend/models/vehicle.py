@@ -7,9 +7,13 @@ class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     plate_number = db.Column(db.String(20), unique=True, nullable=False)
     type = db.Column(db.String(50), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
 
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
     team = db.relationship('Team', backref='vehicles')
+
+    status = db.Column(db.String(20), default='available')
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
 
     def __repr__(self):
         return f'<Vehicle {self.plate_number}>'
