@@ -1,8 +1,9 @@
-from database import db
+# services/assignment_service.py
 from datetime import datetime
 from models.incident import Incident
 from models.team import Team
 from models.incident_assignment import IncidentAssignment
+from database import db
 
 
 def assign_team_to_incident(incident_id, team_id):
@@ -25,9 +26,11 @@ def assign_team_to_incident(incident_id, team_id):
     assignment = IncidentAssignment(
         incident_id=incident_id,
         team_id=team_id,
-        status="assigned",
+        status="ASSIGNED",
         assigned_at=datetime.utcnow()
     )
+
+    incident.status = "DISPATCHED"
 
     db.session.add(assignment)
     db.session.commit()
@@ -61,7 +64,7 @@ def update_assignment_status(assignment_id, new_status, user_id=None):
 
     assignment.status = new_status
 
-    if new_status == "accepted":
+    if new_status.upper() == "ACCEPTED":
         assignment.accepted_by = user_id
         assignment.accepted_at = datetime.utcnow()
 

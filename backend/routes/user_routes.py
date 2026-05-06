@@ -1,8 +1,8 @@
+# routes/user_routes.py
 from flask import Blueprint, request, jsonify
 from models.user import User
 from database import db
 from services.auth_service import hash_password
-
 
 user_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -17,7 +17,7 @@ def _get_current_user():
     except ValueError:
         return None, (jsonify({"error": "Invalid user-id header"}), 400)
 
-    user = User.query.filter_by(id=user_id_int, is_active=True).first()
+    user = User.query.filter_by(id=user_id_int).first()
     if not user:
         return None, (jsonify({"error": "User not found"}), 404)
 
@@ -59,14 +59,20 @@ def update_me():
             new_full_name = str(new_full_name).strip()
             if not new_full_name:
                 return jsonify({"error": "Full name cannot be empty"}), 400
-            user.full_name = new_full_name
+
+            parts = new_full_name.split()
+            user.first_name = parts[0]
+            user.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
 
         if new_username is not None:
             new_username = str(new_username).strip()
             if not new_username:
                 return jsonify({"error": "Username cannot be empty"}), 400
 
-            existing_user = User.query.filter(User.username == new_username, User.id != user.id).first()
+            existing_user = User.query.filter(
+                User.username == new_username,
+                User.id != user.id
+            ).first()
             if existing_user:
                 return jsonify({"error": "Username already exists"}), 409
 
@@ -77,7 +83,7 @@ def update_me():
             user.phone = new_phone if new_phone else None
 
         if new_password is not None and str(new_password).strip():
-            user.password = hash_password(str(new_password))
+            user.password_hash = hash_password(str(new_password))
 
         db.session.commit()
 
@@ -94,4 +100,3 @@ def update_me():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-

@@ -1,3 +1,4 @@
+# services/team_service.py
 from models.team import Team
 from models.vehicle import Vehicle
 from database import db
@@ -23,7 +24,11 @@ def get_all_teams():
         result.append({
             "id": t.id,
             "name": t.name,
-            "station": t.station
+            "station": t.station,
+            "type": t.type,
+            "status": t.status,
+            "commander_id": t.commander_id,
+            "vehicle_id": t.vehicle.id if t.vehicle else None
         })
 
     return result
@@ -38,7 +43,11 @@ def get_team_by_id(team_id):
     return {
         "id": team.id,
         "name": team.name,
-        "station": team.station
+        "station": team.station,
+        "type": team.type,
+        "status": team.status,
+        "commander_id": team.commander_id,
+        "vehicle_id": team.vehicle.id if team.vehicle else None
     }
 
 

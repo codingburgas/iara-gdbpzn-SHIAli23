@@ -1,3 +1,4 @@
+# routes/team_routes.py
 from flask import Blueprint, request, jsonify
 from services.team_service import (
     create_team,
@@ -11,7 +12,7 @@ team_bp = Blueprint('teams', __name__, url_prefix='/teams')
 
 @team_bp.route('/create', methods=['POST'])
 def create():
-    data = request.json
+    data = request.json or {}
 
     name = data.get('name')
     station = data.get('station')
@@ -19,9 +20,12 @@ def create():
     if not name:
         return jsonify({"error": "Team name is required"}), 400
 
-    success, message, team_id = create_team(name, station)
+    success, message, team_id = create_team(name=name, station=station)
 
-    return jsonify({"message": message}), 201
+    if not success:
+        return jsonify({"error": message}), 400
+
+    return jsonify({"message": message, "team_id": team_id}), 201
 
 
 @team_bp.route('/list', methods=['GET'])
@@ -42,7 +46,7 @@ def get_team(team_id):
 
 @team_bp.route('/assign_vehicle', methods=['POST'])
 def assign_vehicle():
-    data = request.json
+    data = request.json or {}
 
     team_id = data.get('team_id')
     vehicle_id = data.get('vehicle_id')

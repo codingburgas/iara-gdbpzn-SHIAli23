@@ -6,18 +6,25 @@ class Incident(db.Model):
     __tablename__ = 'incidents'
 
     id = db.Column(db.Integer, primary_key=True)
+
+    source = db.Column(db.String(20), default='MANUAL')
+    # MANUAL, 112, RADIO, MOBILE_APP
+
     type = db.Column(db.String(50), nullable=False)
+
     address = db.Column(db.String(200), nullable=False)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
+
     description = db.Column(db.Text, nullable=True)
 
-    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
-    team = db.relationship('Team', backref='incidents')
+    status = db.Column(db.String(20), default='REGISTERED')
+    # REGISTERED, DISPATCHED, IN_PROGRESS, RESOLVED, CLOSED
 
-    status = db.Column(db.String(20), default='new')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    assignments = db.relationship('IncidentAssignment', back_populates='incident', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Incident {self.id}>'

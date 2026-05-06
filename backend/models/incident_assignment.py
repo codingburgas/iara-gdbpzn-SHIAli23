@@ -10,16 +10,14 @@ class IncidentAssignment(db.Model):
     incident_id = db.Column(db.Integer, db.ForeignKey('incidents.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
 
-    accepted_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-
-    status = db.Column(db.String(20), default='assigned')  
+    status = db.Column(db.String(20), default='ASSIGNED')
+    # ASSIGNED, EN_ROUTE, ON_SCENE, COMPLETED
 
     assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
-    accepted_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    incident = db.relationship('Incident', backref='assignments')
-    team = db.relationship('Team', backref='assignments')
-    accepter = db.relationship('User', backref='accepted_assignments')
+    incident = db.relationship('Incident', back_populates='assignments')
+    team = db.relationship('Team')
 
     def __repr__(self):
         return f'<IncidentAssignment {self.id}>'
