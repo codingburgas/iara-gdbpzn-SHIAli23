@@ -22,7 +22,7 @@ def list_firefighters():
                 'name': firefighter.full_name,
                 'username': firefighter.username,
                 'role_type': 'Пожарникар',
-                'status': 'Активен',
+                'status': firefighter.status or 'off_duty',
                 'phone': firefighter.phone or '',
                 'email': firefighter.username + '@firebrigade.bg'
             })
@@ -49,11 +49,39 @@ def get_firefighter(firefighter_id):
             'name': firefighter.full_name,
             'username': firefighter.username,
             'role_type': 'Пожарникар',
-            'status': 'Активен',
+            'status': firefighter.status or 'off_duty',
             'phone': firefighter.phone or '',
             'email': firefighter.username + '@firebrigade.bg'
         }), 200
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# Firefighter self-update status
+@firefighter_bp.route('/me/status', methods=['PUT'])
+def update_own_status():
+    user_id = request.headers.get('user-id')
+    if not user_id:
+        return jsonify({"error": "Missing user-id header"}), 401
+    try:
+        user_id_int = int(user_id)
+    except ValueError:
+        return jsonify({"error": "Invalid user-id header"}), 400
+
+    firefighter = User.query.filter_by(id=user_id_int, role='firefighter', is_active=True).first()
+    if not firefighter:
+        return jsonify({"error": "Firefighter not found or not active"}), 404
+
+    data = request.json or {}
+    new_status = data.get('status')
+    allowed_statuses = ['on_duty', 'off_duty', 'on_mission', 'vacation', 'sick_leave']
+    if new_status not in allowed_statuses:
+        return jsonify({"error": f"Invalid status. Allowed: {allowed_statuses}"}), 400
+
+    firefighter.status = new_status
+    try:
+        db.session.commit()
+        return jsonify({"message": "Status updated successfully", "status": firefighter.status}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 

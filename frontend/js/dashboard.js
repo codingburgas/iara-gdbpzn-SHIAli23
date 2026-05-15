@@ -105,7 +105,7 @@ function setupEventListeners() {
 }
 
 // Fetch and populate incidents
-function loadIncidents() {
+async function loadIncidents() {
     const tableBody = document.getElementById("incidentsTableBody");
     const emptyStateMessage = document.getElementById("emptyStateMessage");
     const recordCount = document.getElementById("recordCount");
@@ -115,37 +115,36 @@ function loadIncidents() {
     emptyStateMessage.style.display = "none";
 
     // Fetch incidents
-    fetch("http://127.0.0.1:5000/incidents/list")
-        .then(response => {
-            if (!response.ok) throw new Error("Грешка при зареждане на произшествия");
-            return response.json();
-        })
-        .then(data => {
-            if (!data.incidents || data.incidents.length === 0) {
-                tableBody.innerHTML = "";
-                emptyStateMessage.style.display = "flex";
-                recordCount.textContent = "0 записа";
-                updateStats([], data.incidents || []);
-                return;
-            }
+    const response = await apiClient.get('/incidents/list');
+    
+    if (!response.ok) {
+        console.error("Error loading incidents:", response.error);
+        tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">Грешка при зареждане на произшествия</td></tr>`;
+        emptyStateMessage.style.display = "none";
+        return;
+    }
 
-            // Store incidents globally for filtering
-            window.allIncidents = data.incidents;
+    const data = response.data;
+    
+    if (!data.incidents || data.incidents.length === 0) {
+        tableBody.innerHTML = "";
+        emptyStateMessage.style.display = "flex";
+        recordCount.textContent = "0 записа";
+        updateStats([], data.incidents || []);
+        return;
+    }
 
-            // Update stats
-            updateStats(data.incidents, data.incidents);
+    // Store incidents globally for filtering
+    window.allIncidents = data.incidents;
 
-            // Populate table
-            populateTable(data.incidents);
+    // Update stats
+    updateStats(data.incidents, data.incidents);
 
-            // Update record count
-            recordCount.textContent = `${data.incidents.length} ${data.incidents.length === 1 ? "запис" : "записа"}`;
-        })
-        .catch(error => {
-            console.error("Error loading incidents:", error);
-            tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">Грешка при зареждане на произшествия</td></tr>`;
-            emptyStateMessage.style.display = "none";
-        });
+    // Populate table
+    populateTable(data.incidents);
+
+    // Update record count
+    recordCount.textContent = `${data.incidents.length} ${data.incidents.length === 1 ? "запис" : "записа"}`;
 }
 
 // Update statistics
@@ -184,8 +183,8 @@ function populateTable(incidents) {
 
     incidents.forEach(incident => {
         const row = document.createElement("tr");
-        const statusBadge = getStatusBadge(incident.status || "активно");
-        const formattedDate = formatDate(incident.date_time || incident.dateTime || new Date().toISOString());
+        const statusBadge = getStatusBadge(incident.status || "REGISTERED");
+        const formattedDate = formatDate(incident.created_at || new Date().toISOString());
 
         row.innerHTML = `
             <td>${incident.id || "N/A"}</td>
@@ -256,13 +255,16 @@ function formatDate(dateString) {
 }
 
 // View incident details
-function viewIncidentDetails(incidentId) {
-    fetch(`http://127.0.0.1:5000/incidents/${incidentId}`)
-        .then(response => {
-            if (!response.ok) throw new Error("Грешка при зареждане на детайлите");
-            return response.json();
-        })
-        .then(incident => {
+async function viewIncidentDetails(incidentId) {
+    const response = await apiClient.get(`/incidents/${incidentId}`);
+    
+    if (!response.ok) {
+        alert(response.error || "Грешка при зареждане на детайлите");
+        return;
+    }
+
+    const incident = response.data;
+    
             // Set modal content
             document.getElementById("detailId").textContent = incident.id || "-";
             document.getElementById("detailType").textContent = incident.type || "-";
@@ -294,7 +296,7 @@ function viewIncidentDetails(incidentId) {
             if (window.currentUser && window.currentUser.role && window.currentUser.role.toLowerCase() === 'admin') {
                 statusChangeContainer.style.display = "flex";
                 deleteIncidentBtn.style.display = "block";
-                document.getElementById("newStatusSelect").value = incident.status || "активно";
+                document.getElementById("newStatusSelect").value = incident.status || "REGISTERED";
             } else {
                 statusChangeContainer.style.display = "none";
                 deleteIncidentBtn.style.display = "none";
@@ -302,11 +304,6 @@ function viewIncidentDetails(incidentId) {
             
             // Open modal
             document.getElementById("incidentModal").style.display = "flex";
-        })
-        .catch(error => {
-            console.error("Error loading incident details:", error);
-            alert("Грешка при зареждане на детайлите на произшествието");
-        });
 }
 
 // Close incident modal
@@ -315,39 +312,24 @@ function closeIncidentModal() {
 }
 
 // Update incident status
-function updateIncidentStatus() {
+async function updateIncidentStatus() {
     if (!window.currentIncident) return;
     
     const newStatus = document.getElementById("newStatusSelect").value;
     const incidentId = window.currentIncident.id;
     
-    fetch(`http://127.0.0.1:5000/incidents/${incidentId}/status`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            status: newStatus,
-            user_role: window.currentUser.role
-        })
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.error || "Грешка при обновяване на статуса");
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert("Статусът е успешно обновен!");
-            closeIncidentModal();
-            loadIncidents();
-        })
-        .catch(error => {
-            console.error("Error updating status:", error);
-            alert(error.message);
-        });
+    const response = await apiClient.put(`/incidents/${incidentId}/status`, {
+        status: newStatus
+    });
+    
+    if (!response.ok) {
+        alert(response.error || "Грешка при обновяване на статуса");
+        return;
+    }
+
+    alert("Статусът е успешно обновен!");
+    closeIncidentModal();
+    loadIncidents();
 }
 
 // Close modal when clicking outside
@@ -371,29 +353,15 @@ function deleteIncidentConfirm() {
 }
 
 // Delete incident function
-function deleteIncident(incidentId) {
-    fetch(`http://127.0.0.1:5000/incidents/${incidentId}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "user-role": window.currentUser.role
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.error || "Грешка при изтриване на произшествието");
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert("Произшествието е успешно изтрито!");
-            closeIncidentModal();
-            loadIncidents();
-        })
-        .catch(error => {
-            console.error("Error deleting incident:", error);
-            alert(error.message || "Възникна грешка при изтриване на произшествието");
-        });
+async function deleteIncident(incidentId) {
+    const response = await apiClient.delete(`/incidents/${incidentId}`);
+    
+    if (!response.ok) {
+        alert(response.error || "Възникна грешка при изтриване на произшествието");
+        return;
+    }
+
+    alert("Произшествието е успешно изтрито!");
+    closeIncidentModal();
+    loadIncidents();
 }

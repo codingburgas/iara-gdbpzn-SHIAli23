@@ -67,4 +67,4 @@ def create():
 @vehicle_bp.route('/list', methods=['GET'])
 def list_vehicles():
     result = get_all_vehicles()
-    return jsonify(result), 200
+    return jsonify({"vehicles": result}), 200

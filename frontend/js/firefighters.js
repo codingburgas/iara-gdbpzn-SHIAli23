@@ -124,7 +124,7 @@ function setupEventListeners() {
 }
 
 // Load firefighters from backend
-function loadFirefighters() {
+async function loadFirefighters() {
     if (!window.currentUser || window.currentUser.role.toLowerCase() !== 'admin') {
         return;
     }
@@ -137,47 +137,34 @@ function loadFirefighters() {
     emptyStateMessage.style.display = "none";
 
     // Fetch firefighters from backend
-    fetch("http://127.0.0.1:5000/firefighters/list", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "user-role": window.currentUser.role
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 403) {
-                throw new Error("Нямате достъп до тази страница");
-            }
-            throw new Error("Грешка при зареждане на пожарникари");
-        }
-        return response.json();
-    })
-    .then(data => {
-        window.allFirefighters = data.firefighters || [];
-        console.log("Firefighters loaded from backend:", window.allFirefighters);
-        
-        if (window.allFirefighters.length === 0) {
-            tableBody.innerHTML = "";
-            emptyStateMessage.style.display = "flex";
-            emptyStateMessage.innerHTML = `
-                <i class="fas fa-inbox empty-state-icon"></i>
-                <h3>Няма пожарникари</h3>
-                <p>Добавете първи пожарникар</p>
-            `;
-            updateStats([]);
-            return;
-        }
-
-        // Populate table
-        renderFirefighterList(window.allFirefighters);
-        updateStats(window.allFirefighters);
-    })
-    .catch(error => {
-        console.error("Error loading firefighters:", error);
-        tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">${error.message}</td></tr>`;
+    const response = await apiClient.get('/firefighters/list');
+    
+    if (!response.ok) {
+        console.error("Error loading firefighters:", response.error);
+        tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">${response.error}</td></tr>`;
         emptyStateMessage.style.display = "none";
-    });
+        return;
+    }
+
+    const data = response.data;
+    window.allFirefighters = data.firefighters || [];
+    console.log("Firefighters loaded from backend:", window.allFirefighters);
+    
+    if (window.allFirefighters.length === 0) {
+        tableBody.innerHTML = "";
+        emptyStateMessage.style.display = "flex";
+        emptyStateMessage.innerHTML = `
+            <i class="fas fa-inbox empty-state-icon"></i>
+            <h3>Няма пожарникари</h3>
+            <p>Добавете първи пожарникар</p>
+        `;
+        updateStats([]);
+        return;
+    }
+
+    // Populate table
+    renderFirefighterList(window.allFirefighters);
+    updateStats(window.allFirefighters);
 }
 
 // Render firefighter list
@@ -283,33 +270,23 @@ function openViewDetailsForm(firefighterId) {
 }
 
 // Delete firefighter via API
-function deleteFirefighter(firefighterId) {
+async function deleteFirefighter(firefighterId) {
     if (!window.currentUser || window.currentUser.role.toLowerCase() !== 'admin') {
         alert("Нямате достъп да премахнете пожарникар");
         return;
     }
 
-    fetch(`http://127.0.0.1:5000/firefighters/delete/${firefighterId}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "user-role": window.currentUser.role
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Грешка при премахване на пожарникар");
-        return response.json();
-    })
-    .then(data => {
-        console.log("Firefighter deleted:", firefighterId);
-        showNotification("Пожарникарът е успешно премахнат!", "success");
-        closeDetailsModal();
-        loadFirefighters();
-    })
-    .catch(error => {
-        console.error("Error deleting firefighter:", error);
-        alert("Грешка при премахване на пожарникар");
-    });
+    const response = await apiClient.delete(`/firefighters/delete/${firefighterId}`);
+    
+    if (!response.ok) {
+        alert(response.error || "Грешка при премахване на пожарникар");
+        return;
+    }
+
+    console.log("Firefighter deleted:", firefighterId);
+    showNotification("Пожарникарът е успешно премахнат!", "success");
+    closeDetailsModal();
+    loadFirefighters();
 }
 
 // Open delete confirmation

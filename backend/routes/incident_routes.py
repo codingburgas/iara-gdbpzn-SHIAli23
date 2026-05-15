@@ -60,10 +60,10 @@ def get_incident(incident_id):
 @incident_bp.route('/<int:incident_id>/status', methods=['PUT'])
 def update_status(incident_id):
     data = request.json or {}
-    user_role = data.get('user_role')
+    user_role = request.headers.get('user-role', '').lower()
     new_status = data.get('status')
 
-    if not user_role or user_role.lower() != 'admin':
+    if not user_role or user_role != 'admin':
         return jsonify({"error": "Only administrators can change incident status"}), 403
 
     if not new_status:

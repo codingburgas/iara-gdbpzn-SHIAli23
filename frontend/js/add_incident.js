@@ -147,32 +147,30 @@ function useSelectedMapCoordinates() {
 }
 
 // Load teams from backend
-function loadTeams() {
-    fetch("http://127.0.0.1:5000/teams/list")
-        .then(response => {
-            if (!response.ok) throw new Error("Грешка при зареждане на екипи");
-            return response.json();
-        })
-        .then(data => {
-            const teamSelect = document.getElementById("teamId");
+async function loadTeams() {
+    const response = await apiClient.get('/teams/list');
+    
+    if (!response.ok) {
+        console.error("Error loading teams:", response.error);
+        // Continue even if teams fail to load - it's optional
+        return;
+    }
 
-            if (data.teams && data.teams.length > 0) {
-                data.teams.forEach(team => {
-                    const option = document.createElement("option");
-                    option.value = team.id;
-                    option.textContent = team.name;
-                    teamSelect.appendChild(option);
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Error loading teams:", error);
-            // Continue even if teams fail to load - it's optional
+    const data = response.data;
+    const teamSelect = document.getElementById("teamId");
+
+    if (data.teams && data.teams.length > 0) {
+        data.teams.forEach(team => {
+            const option = document.createElement("option");
+            option.value = team.id;
+            option.textContent = team.name;
+            teamSelect.appendChild(option);
         });
+    }
 }
 
 // Handle form submission
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
 
     // Get form values
@@ -195,12 +193,10 @@ function handleFormSubmit(e) {
         return;
     }
 
-    // Prepare request data
     const requestData = {
-        type: type,
-        address: address,
-        description: description || null,
-        team_id: teamId || null
+        type,
+        address,
+        description: description || null
     };
 
     // Add optional GPS coordinates
@@ -213,38 +209,22 @@ function handleFormSubmit(e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Зареждане...';
 
     // Send request
-    fetch("http://127.0.0.1:5000/incidents/create", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestData)
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.error || "Грешка при добавяне на произшествието");
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Hide form and show success message
-            showSuccessMessage(data.incident_id);
+    const response = await apiClient.post('/incidents/create', requestData);
+    
+    if (!response.ok) {
+        showError(response.error || "Грешка при добавяне на произшествието");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Добави произшествие';
+        return;
+    }
 
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                window.location.href = "./dashboard.html";
-            }, 2000);
-        })
-        .catch(error => {
-            // Show error message
-            showError(error.message || "Възникна грешка при добавяне на произшествието");
+    // Hide form and show success message
+    showSuccessMessage(response.data.incident_id);
 
-            // Re-enable submit button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Добави произшествие';
-        });
+    // Redirect after 2 seconds
+    setTimeout(() => {
+        window.location.href = "./dashboard.html";
+    }, 2000);
 }
 
 // Validate coordinate format

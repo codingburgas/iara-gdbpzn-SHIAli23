@@ -31,7 +31,7 @@ def create():
 @team_bp.route('/list', methods=['GET'])
 def list_teams():
     result = get_all_teams()
-    return jsonify(result), 200
+    return jsonify({"teams": result}), 200
 
 
 @team_bp.route('/<int:team_id>', methods=['GET'])

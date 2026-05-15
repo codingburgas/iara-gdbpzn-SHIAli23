@@ -3,21 +3,30 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
+    const loginBtn = e.target.querySelector('button[type="submit"]');
+    
+    // Show loading state
+    const originalHtml = loginBtn.innerHTML;
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
 
-    const response = await fetch("http://127.0.0.1:5000/auth/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({username, password})
-    });
+    try {
+        const response = await apiClient.post('/auth/login', { username, password });
 
-    const data = await response.json();
+        if (!response.ok) {
+            alert(response.error || "Грешка при вход");
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = originalHtml;
+            return;
+        }
 
-    if (response.ok) {
         // Store user data in localStorage
-        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        localStorage.setItem('currentUser', JSON.stringify(response.data.user));
         alert("Успешен вход!");
         window.location.href = "../html/dashboard.html";
-    } else {
-        alert(data.error);
+    } catch (error) {
+        alert("Грешка при вход: " + error.message);
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = originalHtml;
     }
 });

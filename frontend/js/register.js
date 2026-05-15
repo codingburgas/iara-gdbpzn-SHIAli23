@@ -5,19 +5,32 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const role = document.getElementById("role").value;
+    
+    const registerBtn = e.target.querySelector('button[type="submit"]');
+    const originalHtml = registerBtn.innerHTML;
+    registerBtn.disabled = true;
+    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
 
-    const response = await fetch("http://127.0.0.1:5000/auth/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({full_name, username, password, role})
-    });
+    try {
+        const response = await apiClient.post('/auth/register', {
+            full_name,
+            username,
+            password,
+            role
+        });
 
-    const data = await response.json();
+        if (!response.ok) {
+            alert(response.error || "Грешка при регистрация");
+            registerBtn.disabled = false;
+            registerBtn.innerHTML = originalHtml;
+            return;
+        }
 
-    if (response.ok) {
         alert("Успешна регистрация!");
         window.location.href = "login.html";
-    } else {
-        alert(data.error);
+    } catch (error) {
+        alert("Грешка при регистрация: " + error.message);
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = originalHtml;
     }
 });

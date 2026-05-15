@@ -82,24 +82,29 @@ async function loadProfile() {
     messageEl.style.display = "none";
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/users/me", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "user-id": window.currentUser.id,
-            },
-        });
-
-        const data = await response.json();
+        const response = await apiClient.get('/users/me');
         if (!response.ok) {
-            throw new Error(data.error || "Неуспешно зареждане на профила.");
+            throw new Error(response.error || "Неуспешно зареждане на профила.");
         }
-
-        const user = data.user;
+        const user = response.data.user;
         document.getElementById("fullName").value = user.full_name || "";
         document.getElementById("username").value = user.username || "";
         document.getElementById("phone").value = user.phone || "";
         document.getElementById("role").value = user.role || "";
+
+        // Show status dropdown for firefighters
+        if ((user.role || '').toLowerCase() === 'firefighter') {
+            document.getElementById("statusGroup").style.display = '';
+            // Fetch current status from admin endpoint for consistency
+            const statusResp = await apiClient.get('/firefighters/' + user.id);
+            if (statusResp.ok && statusResp.data.status) {
+                document.getElementById("status").value = statusResp.data.status;
+            } else if (user.status) {
+                document.getElementById("status").value = user.status;
+            }
+        } else {
+            document.getElementById("statusGroup").style.display = 'none';
+        }
     } catch (err) {
         showMessage(err.message, "error");
     }
@@ -113,6 +118,8 @@ async function handleSaveProfile(e) {
     const phone = document.getElementById("phone").value.trim();
     const new_password = document.getElementById("newPassword").value;
     const confirm_password = document.getElementById("confirmPassword").value;
+    const role = (document.getElementById("role").value || '').toLowerCase();
+    const status = document.getElementById("status")?.value;
 
     if (!full_name || !username) {
         showMessage("Моля, попълнете пълно име и потребителско име.", "error");
@@ -137,27 +144,27 @@ async function handleSaveProfile(e) {
         };
         if (new_password) payload.new_password = new_password;
 
-        const response = await fetch("http://127.0.0.1:5000/users/me", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "user-id": window.currentUser.id,
-            },
-            body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
+        // Update profile info
+        const response = await apiClient.put('/users/me', payload);
         if (!response.ok) {
-            throw new Error(data.error || "Неуспешно обновяване на профила.");
+            throw new Error(response.error || "Неуспешно обновяване на профила.");
+        }
+
+        // If firefighter, update status as well
+        if (role === 'firefighter' && status) {
+            const statusResp = await apiClient.put('/firefighters/me/status', { status });
+            if (!statusResp.ok) {
+                throw new Error(statusResp.error || "Неуспешна промяна на статус.");
+            }
         }
 
         // Update localStorage with the latest known values used around the app
         const updatedUser = {
-            id: data.user.id,
-            full_name: data.user.full_name,
-            role: data.user.role,
-            username: data.user.username,
-            phone: data.user.phone,
+            id: response.data.user.id,
+            full_name: response.data.user.full_name,
+            role: response.data.user.role,
+            username: response.data.user.username,
+            phone: response.data.user.phone,
         };
         localStorage.setItem("currentUser", JSON.stringify(updatedUser));
         window.currentUser = updatedUser;
