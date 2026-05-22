@@ -11,6 +11,8 @@ from routes.vehicle_routes import vehicle_bp
 from routes.user_routes import user_bp
 from routes.firefighter_routes import firefighter_bp
 from routes.assignments_routes import assignments_bp
+from routes.task_routes import task_bp
+from routes.notification_routes import notification_bp
 
 
 def create_app(config_name='development'):
@@ -36,6 +38,8 @@ def create_app(config_name='development'):
     app.register_blueprint(user_bp)
     app.register_blueprint(firefighter_bp)
     app.register_blueprint(assignments_bp)
+    app.register_blueprint(task_bp)
+    app.register_blueprint(notification_bp)
 
     @app.route('/')
     def index():

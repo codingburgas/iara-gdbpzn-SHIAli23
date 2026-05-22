@@ -102,6 +102,61 @@ function setupEventListeners() {
             sidebar.classList.remove("open");
         }
     });
+
+    // Task modal overlay click handler
+    const taskModal = document.getElementById("taskModal");
+    if (taskModal) {
+        taskModal.addEventListener("click", (e) => {
+            if (e.target === taskModal) {
+                closeTaskModal();
+            }
+        });
+    }
+
+    // Incident modal overlay click handler
+    const incidentModal = document.getElementById("incidentModal");
+    if (incidentModal) {
+        incidentModal.addEventListener("click", (e) => {
+            if (e.target === incidentModal) {
+                closeIncidentModal();
+            }
+        });
+    }
+
+    // Notification button and center
+    const notificationBtn = document.getElementById("notificationBtn");
+    const notificationCenter = document.getElementById("notificationCenter");
+    const closeNotificationCenter = document.getElementById("closeNotificationCenter");
+    const markAllReadBtn = document.getElementById("markAllReadBtn");
+
+    if (notificationBtn) {
+        notificationBtn.addEventListener("click", () => {
+            notificationCenter.classList.toggle("active");
+            if (notificationCenter.classList.contains("active")) {
+                loadNotifications();
+            }
+        });
+    }
+
+    if (closeNotificationCenter) {
+        closeNotificationCenter.addEventListener("click", () => {
+            notificationCenter.classList.remove("active");
+        });
+    }
+
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener("click", markAllNotificationsRead);
+    }
+
+    // Close notification center on outside click
+    document.addEventListener("click", (e) => {
+        if (notificationCenter && !notificationCenter.contains(e.target) && !notificationBtn.contains(e.target)) {
+            notificationCenter.classList.remove("active");
+        }
+    });
+
+    // Start notification polling
+    startNotificationPolling();
 }
 
 // Fetch and populate incidents
@@ -192,7 +247,11 @@ function populateTable(incidents) {
             <td>${incident.address || "N/A"}</td>
             <td>${formattedDate}</td>
             <td>${statusBadge}</td>
-            <td><button class="btn-action" onclick="viewIncidentDetails(${incident.id || 0})">Преглед</button></td>
+            <td>
+                <button class="btn-action" onclick="viewIncidentDetails(${incident.id})">Преглед</button>
+                <button class="btn-action" onclick="openTaskModal(${incident.id})" style="margin-left: 6px;"><i class="fas fa-tasks"></i> Задачи</button>
+            </td>
+
         `;
         tableBody.appendChild(row);
     });
@@ -364,4 +423,244 @@ async function deleteIncident(incidentId) {
     alert("Произшествието е успешно изтрито!");
     closeIncidentModal();
     loadIncidents();
+}
+
+// --- Task Management Modal Logic ---
+let currentTaskIncidentId = null;
+
+function openTaskModal(incidentId) {
+    currentTaskIncidentId = incidentId;
+    const modal = document.getElementById("taskModal");
+    modal.classList.add("active");
+    modal.style.display = "flex";
+    loadTasks(incidentId);
+}
+
+function closeTaskModal() {
+    const modal = document.getElementById("taskModal");
+    modal.classList.remove("active");
+    modal.style.display = "none";
+    currentTaskIncidentId = null;
+    // Clear form fields
+    const taskTitle = document.getElementById("taskTitle");
+    const taskDescription = document.getElementById("taskDescription");
+    if (taskTitle) taskTitle.value = "";
+    if (taskDescription) taskDescription.value = "";
+}
+
+async function loadTasks(incidentId) {
+    const taskList = document.getElementById("taskList");
+    if (!taskList) return;
+    taskList.innerHTML = '<div class="task-empty-state">Зареждане...</div>';
+    
+    const response = await apiClient.get(`/incidents/${incidentId}/tasks`);
+    if (!response.ok) {
+        taskList.innerHTML = `<div class="task-empty-state" style="color: #ff6b6b;">Грешка при зареждане на задачите</div>`;
+        return;
+    }
+    
+    const tasks = response.data.tasks || [];
+    if (tasks.length === 0) {
+        taskList.innerHTML = '<div class="task-empty-state"><i class="fas fa-clipboard-list"></i><p>Няма задачи</p></div>';
+        return;
+    }
+    
+    taskList.innerHTML = tasks.map(task => `
+        <div class="task-item">
+            <h4>${escapeHtml(task.title)}</h4>
+            <div class="task-item-description">
+                ${task.description ? escapeHtml(task.description) : '<i>Без описание</i>'}
+            </div>
+            <div class="task-item-footer">
+                <span class="task-status ${task.status === 'done' ? 'done' : 'pending'}">
+                    ${task.status === 'done' ? 'Изпълнена' : 'В процес'}
+                </span>
+                ${task.status !== 'done' ? `<button class="task-action-button" onclick="updateTaskStatus(${task.id})">Маркирай като готова</button>` : ''}
+            </div>
+        </div>
+    `).join("");
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+async function addTask() {
+    const title = document.getElementById("taskTitle").value.trim();
+    const description = document.getElementById("taskDescription").value.trim();
+    if (!title) {
+        alert("Моля, въведете заглавие.");
+        return;
+    }
+    const response = await apiClient.post(`/incidents/${currentTaskIncidentId}/tasks`, {
+        title,
+        description
+    });
+    if (!response.ok) {
+        alert("Грешка при добавяне на задачата: " + (response.error || "Unknown error"));
+        return;
+    }
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskDescription").value = "";
+    loadTasks(currentTaskIncidentId);
+}
+
+async function updateTaskStatus(taskId) {
+    const response = await apiClient.put(`/tasks/${taskId}/status`, { status: "done" });
+    if (!response.ok) {
+        alert("Грешка при обновяване на статуса на задачата");
+        return;
+    }
+    loadTasks(currentTaskIncidentId);
+}
+
+// ============ NOTIFICATION FUNCTIONS ============
+
+// Notification polling interval (10 seconds)
+let notificationPollInterval = null;
+
+function startNotificationPolling() {
+    // Initial fetch
+    updateNotificationBadge();
+    
+    // Poll every 10 seconds
+    notificationPollInterval = setInterval(() => {
+        updateNotificationBadge();
+    }, 10000);
+}
+
+async function updateNotificationBadge() {
+    if (!window.currentUser) return;
+    
+    const response = await apiClient.get('/notifications/unread-count');
+    
+    if (response.ok) {
+        const count = response.data.unread_count || 0;
+        const badge = document.getElementById("unreadBadge");
+        
+        if (count > 0) {
+            badge.textContent = count;
+            badge.classList.add("active");
+        } else {
+            badge.classList.remove("active");
+        }
+    }
+}
+
+async function loadNotifications() {
+    const notificationList = document.getElementById("notificationList");
+    const response = await apiClient.get('/notifications?limit=20&offset=0');
+    
+    if (!response.ok) {
+        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        return;
+    }
+    
+    const notifications = response.data.notifications || [];
+    
+    if (notifications.length === 0) {
+        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        return;
+    }
+    
+    notificationList.innerHTML = notifications.filter(notif => !notif.is_read).map(notif => {
+        const timeStr = formatNotificationTime(notif.created_at);
+        const typeIcon = getNotificationIcon(notif.type);
+        
+        return `
+            <div class="notification-item unread" data-notification-id="${notif.id}">
+                <div class="notification-item-icon">
+                    ${typeIcon}
+                </div>
+                <div class="notification-item-content">
+                    <div class="notification-item-title">${escapeHtml(notif.title)}</div>
+                    ${notif.content ? `<div class="notification-item-content">${escapeHtml(notif.content)}</div>` : ''}
+                    <div class="notification-item-time">${timeStr}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Add click handlers to mark notifications as read
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const notifId = item.getAttribute('data-notification-id');
+            markNotificationRead(notifId);
+        });
+    });
+}
+
+async function markNotificationRead(notificationId) {
+    const response = await apiClient.put(`/notifications/${notificationId}/read`, {});
+    
+    if (response.ok) {
+        // Remove notification from DOM immediately
+        const notifElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (notifElement) {
+            notifElement.remove();
+        }
+        // Check if there are any unread notifications left
+        const remainingNotifs = document.querySelectorAll('.notification-item');
+        if (remainingNotifs.length === 0) {
+            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма нови уведомления</div>';
+        }
+        // Update badge count
+        updateNotificationBadge();
+    }
+}
+
+async function markAllNotificationsRead() {
+    const response = await apiClient.put('/notifications/mark-all-read', {});
+    
+    if (response.ok) {
+        loadNotifications();
+        updateNotificationBadge();
+    }
+}
+
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'firefighter_status_changed':
+            return '<i class="fas fa-user-check"></i>';
+        case 'new_task':
+            return '<i class="fas fa-tasks"></i>';
+        case 'new_incident':
+            return '<i class="fas fa-bell"></i>';
+        default:
+            return '<i class="fas fa-bell"></i>';
+    }
+}
+
+function formatNotificationTime(dateStr) {
+    // Ensure date is parsed as UTC by appending Z if missing
+    let isoStr = dateStr;
+    if (typeof dateStr === 'string' && !dateStr.endsWith('Z') && !dateStr.includes('+')) {
+        isoStr = dateStr + 'Z';
+    }
+    const date = new Date(isoStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    let relativeTime = '';
+    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
+    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
+    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
+    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
+    else relativeTime = date.toLocaleDateString('bg-BG');
+    
+    // Show actual time in HH:MM format (use date's timezone)
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+    return `${relativeTime} (${timeStr})`;
 }

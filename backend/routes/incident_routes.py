@@ -8,6 +8,17 @@ from services.incident_service import (
     delete_incident,
     delete_all_incidents
 )
+from services.task_service import (
+    create_task,
+    get_tasks_by_incident,
+    get_task_by_id,
+    update_task_status,
+    delete_task
+)
+from services.notification_service import (
+    create_new_task_notification,
+    create_new_incident_notification
+)
 
 incident_bp = Blueprint('incidents', __name__, url_prefix='/incidents')
 
@@ -37,6 +48,9 @@ def create():
 
     if not success:
         return jsonify({"error": message}), 400
+
+    # Create notification for all firefighters about new incident
+    create_new_incident_notification(incident_id, incident_type, address)
 
     return jsonify({"message": message, "incident_id": incident_id}), 201
 
@@ -105,3 +119,33 @@ def delete_all():
         return jsonify({"error": message}), 400
 
     return jsonify({"message": message}), 200
+
+
+# --- Task Management Routes ---
+
+@incident_bp.route('/<int:incident_id>/tasks', methods=['GET'])
+def get_incident_tasks(incident_id):
+    """Get all tasks for an incident"""
+    result = get_tasks_by_incident(incident_id)
+    return jsonify(result), 200
+
+
+@incident_bp.route('/<int:incident_id>/tasks', methods=['POST'])
+def create_incident_task(incident_id):
+    """Create a new task for an incident"""
+    data = request.json or {}
+    title = data.get('title')
+    description = data.get('description')
+
+    if not title:
+        return jsonify({"error": "Task title is required"}), 400
+
+    success, message, task_id = create_task(incident_id, title, description)
+
+    if not success:
+        return jsonify({"error": message}), 400
+
+    # Create notification for all firefighters about new task
+    create_new_task_notification(task_id, title, incident_id)
+
+    return jsonify({"message": message, "task_id": task_id}), 201

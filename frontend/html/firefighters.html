@@ -20,9 +20,29 @@
     </div>
     <div class="topbar-right">
         <span class="topbar-subtitle">Управление на пожарникари</span>
+        <button id="notificationBtn" class="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span id="unreadBadge" class="notification-badge">0</span>
+        </button>
         <button id="logoutBtn" class="topbar-logout">
             <i class="fas fa-sign-out-alt"></i>
         </button>
+    </div>
+</div>
+
+<!-- Notification Center -->
+<div id="notificationCenter" class="notification-center">
+    <div class="notification-center-header">
+        <h3>Уведомления</h3>
+        <button id="closeNotificationCenter" class="close-notification-center">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div id="notificationList" class="notification-list">
+        <div class="notification-empty">Няма нови уведомления</div>
+    </div>
+    <div class="notification-center-footer">
+        <button id="markAllReadBtn" class="btn-mark-all-read">Маркирай всички като прочетени</button>
     </div>
 </div>
 

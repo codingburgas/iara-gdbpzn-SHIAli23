@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from models.user import User
 from database import db
+from services.notification_service import create_firefighter_status_notification
 
 firefighter_bp = Blueprint('firefighters', __name__, url_prefix='/firefighters')
 
@@ -79,6 +80,12 @@ def update_own_status():
     firefighter.status = new_status
     try:
         db.session.commit()
+        # Create notification for all admins about status change
+        create_firefighter_status_notification(
+            firefighter_id=user_id_int,
+            firefighter_name=firefighter.full_name,
+            new_status=new_status
+        )
         return jsonify({"message": "Status updated successfully", "status": firefighter.status}), 200
     except Exception as e:
         db.session.rollback()
