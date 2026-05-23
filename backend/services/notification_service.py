@@ -183,3 +183,26 @@ def create_new_incident_notification(incident_id, incident_title, incident_locat
         return True, f"Notifications sent to {len(firefighters)} firefighters"
     except Exception as e:
         return False, str(e)
+
+
+def create_team_assignment_notifications(team_id, team_name, member_ids, creator_id=None):
+    """Notify specific firefighters that they were assigned to a team"""
+    try:
+        title = f"Назначени сте в екип: {team_name}"
+        content = f"team_id:{team_id}"
+
+        sent = 0
+        for member_id in member_ids or []:
+            ok, msg, nid = create_notification(
+                user_id=member_id,
+                sender_id=creator_id,
+                notification_type='team_assigned',
+                title=title,
+                content=content
+            )
+            if ok:
+                sent += 1
+
+        return True, f"Notifications sent to {sent} users"
+    except Exception as e:
+        return False, str(e)

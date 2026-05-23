@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автомобили</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/teams.css">
+    <link rel="stylesheet" href="../css/modal.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <button id="menuBtn" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">Автомобили</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-subtitle">Управление на автомобили</span>
+        <button id="notificationBtn" class="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span id="unreadBadge" class="notification-badge">0</span>
+        </button>
+        <button id="logoutBtn" class="topbar-logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Notification Center -->
+<div id="notificationCenter" class="notification-center">
+    <div class="notification-center-header">
+        <h3>Уведомления</h3>
+        <button id="closeNotificationCenter" class="close-notification-center">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div id="notificationList" class="notification-list">
+        <div class="notification-empty">Няма нови уведомления</div>
+    </div>
+    <div class="notification-center-footer">
+        <button id="markAllReadBtn" class="btn-mark-all-read">Маркирай всички като прочетени</button>
+    </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <h2>ГДПБЗН</h2>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="menu">
+            <li class="menu-item" data-page="incidents">
+                <i class="fas fa-bell"></i>
+                <span>Произшествия</span>
+            </li>
+            <li class="menu-item" data-page="firefighters" data-admin-only="true">
+                <i class="fas fa-person"></i>
+                <span>Пожарникари</span>
+            </li>
+            <li class="menu-item" data-page="teams">
+                <i class="fas fa-users"></i>
+                <span>Екипи</span>
+            </li>
+            <li class="menu-item active" data-page="vehicles">
+                <i class="fas fa-car"></i>
+                <span>Автомобили</span>
+            </li>
+            <li class="menu-item" data-page="profile">
+                <i class="fas fa-id-badge"></i>
+                <span>Профил</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="content">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Автомобили</h1>
+            <p>Управление и преглед на автомобилния парк</p>
+        </div>
+        <button id="registerVehicleBtn" class="btn-add-primary" data-admin-only="true">
+            <i class="fas fa-plus"></i> Регистрирай автомобил
+        </button>
+    </div>
+
+    <div class="vehicles-filters" data-admin-only="true">
+        <div class="filter-group">
+            <input type="text" id="vehicleSearch" placeholder="Търси по сигнал или номер на маса...">
+            <select id="vehicleStatusFilter">
+                <option value="">Всички статусни</option>
+                <option value="AVAILABLE">Disponibel</option>
+                <option value="ON_MISSION">На задача</option>
+                <option value="MAINTENANCE">Поддържане</option>
+            </select>
+            <select id="vehicleTypeFilter">
+                <option value="">Всички типове</option>
+                <option value="FIRE_TRUCK">Пожарен автомобил</option>
+                <option value="CISTERN">Цистерна</option>
+                <option value="SUPPORT">Подпомагащ</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="vehicles-grid" id="vehiclesGrid">
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Зареждане на автомобили...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Register Vehicle Modal -->
+<div id="registerVehicleModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Регистрирай нов автомобил</h2>
+            <button class="modal-close" onclick="closeRegisterVehicleModal()">&times;</button>
+        </div>
+        
+        <form id="registerVehicleForm" class="modal-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="vehicleCallsign">Сигнал*</label>
+                    <input type="text" id="vehicleCallsign" required placeholder="Например: ПА-1">
+                </div>
+                <div class="form-group">
+                    <label for="vehiclePlate">Номер на маса*</label>
+                    <input type="text" id="vehiclePlate" required placeholder="Например: СФ 1234 АА">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="vehicleType">Тип автомобил*</label>
+                <select id="vehicleType" required>
+                    <option value="">Избери тип</option>
+                    <option value="FIRE_TRUCK">Пожарен автомобил</option>
+                    <option value="CISTERN">Цистерна</option>
+                    <option value="SUPPORT">Подпомагащ</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="vehicleWaterCapacity">Капацитет вода (литри)</label>
+                    <input type="number" id="vehicleWaterCapacity" min="0" placeholder="Например: 2000">
+                </div>
+                <div class="form-group">
+                    <label for="vehicleFoamCapacity">Капацитет пяна (литри)</label>
+                    <input type="number" id="vehicleFoamCapacity" min="0" placeholder="Например: 500">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeRegisterVehicleModal()">Отмени</button>
+                <button type="submit" class="btn-add-primary">
+                    <i class="fas fa-save"></i> Регистрирай
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Vehicle Details Modal -->
+<div id="vehicleDetailsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Детайли на автомобила</h2>
+            <button class="modal-close" onclick="closeVehicleDetailsModal()">&times;</button>
+        </div>
+        
+        <div class="vehicle-details-content">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label>Сигнал</label>
+                    <p id="detailCallsign">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Номер на маса</label>
+                    <p id="detailPlate">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Тип</label>
+                    <p id="detailType">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Статус</label>
+                    <p id="detailStatus">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Капацитет вода</label>
+                    <p id="detailWaterCapacity">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Капацитет пяна</label>
+                    <p id="detailFoamCapacity">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Назначен екип</label>
+                    <p id="detailAssignedTeam">-</p>
+                </div>
+                <div class="detail-item">
+                    <label>Последна позиция</label>
+                    <p id="detailLocation">-</p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeVehicleDetailsModal()">Затвори</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/vehicles.js"></script>
+</body>
+</html>

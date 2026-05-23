@@ -36,7 +36,8 @@ def get_me():
             "full_name": user.full_name,
             "username": user.username,
             "role": user.role,
-            "phone": user.phone or ""
+            "phone": user.phone or "",
+            "team_id": user.team_id
         }
     }), 200
 
@@ -94,7 +95,8 @@ def update_me():
                 "full_name": user.full_name,
                 "username": user.username,
                 "role": user.role,
-                "phone": user.phone or ""
+                "phone": user.phone or "",
+                "team_id": user.team_id
             }
         }), 200
     except Exception as e:

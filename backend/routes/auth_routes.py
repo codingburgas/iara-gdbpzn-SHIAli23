@@ -61,6 +61,7 @@ def login():
             "full_name": user.full_name,
             "username": user.username,
             "phone": user.phone or "",
-            "role": user.role
+            "role": user.role,
+            "team_id": user.team_id
         }
     }), 200

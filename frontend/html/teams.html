@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Екипи</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/teams.css">
+    <link rel="stylesheet" href="../css/modal.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <button id="menuBtn" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">Екипи</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-subtitle">Управление на екипи</span>
+        <button id="notificationBtn" class="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span id="unreadBadge" class="notification-badge">0</span>
+        </button>
+        <button id="logoutBtn" class="topbar-logout">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Notification Center -->
+<div id="notificationCenter" class="notification-center">
+    <div class="notification-center-header">
+        <h3>Уведомления</h3>
+        <button id="closeNotificationCenter" class="close-notification-center">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div id="notificationList" class="notification-list">
+        <div class="notification-empty">Няма нови уведомления</div>
+    </div>
+    <div class="notification-center-footer">
+        <button id="markAllReadBtn" class="btn-mark-all-read">Маркирай всички като прочетени</button>
+    </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <h2>ГДПБЗН</h2>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="menu">
+            <li class="menu-item" data-page="incidents">
+                <i class="fas fa-bell"></i>
+                <span>Произшествия</span>
+            </li>
+            <li class="menu-item" data-page="firefighters" data-admin-only="true">
+                <i class="fas fa-person"></i>
+                <span>Пожарникари</span>
+            </li>
+            <li class="menu-item active" data-page="teams">
+                <i class="fas fa-users"></i>
+                <span>Екипи</span>
+            </li>
+            <li class="menu-item" data-page="vehicles">
+                <i class="fas fa-car"></i>
+                <span>Автомобили</span>
+            </li>
+            <li class="menu-item" data-page="profile">
+                <i class="fas fa-id-badge"></i>
+                <span>Профил</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="content">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Екипи</h1>
+            <p id="headerSubtitle">Управление и преглед на всички екипи</p>
+        </div>
+        <button id="createTeamBtn" class="btn-add-primary" style="display: none;">
+            <i class="fas fa-plus"></i> Създай екип
+        </button>
+    </div>
+
+    <!-- Firefighter View - My Team -->
+    <div id="firefighterView" style="display: none;">
+        <div class="my-team-container">
+            <div class="team-card-large">
+                <div class="team-card-header">
+                    <h2 id="myTeamName">Мой екип</h2>
+                    <span id="myTeamStatus" class="team-status-badge"></span>
+                </div>
+                
+                <div class="team-info-grid">
+                    <div class="team-info-item">
+                        <label>Станция</label>
+                        <p id="myTeamStation">-</p>
+                    </div>
+                    <div class="team-info-item">
+                        <label>Тип</label>
+                        <p id="myTeamType">-</p>
+                    </div>
+                    <div class="team-info-item">
+                        <label>Командир</label>
+                        <p id="myTeamCommander">-</p>
+                    </div>
+                    <div class="team-info-item">
+                        <label>Статус</label>
+                        <p id="myTeamStatusText">-</p>
+                    </div>
+                </div>
+
+                <div class="team-members-section">
+                    <h3><i class="fas fa-people-group"></i> Членове на екипа</h3>
+                    <div id="teamMembersContainer" class="team-members-list">
+                        <div class="empty-state">Няма членове</div>
+                    </div>
+                </div>
+
+                <div class="team-vehicle-section">
+                    <h3><i class="fas fa-fire-truck"></i> Назначен автомобил</h3>
+                    <div id="assignedVehicleContainer" class="vehicle-card-small">
+                        <div class="empty-state">Няма назначен автомобил</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin View - All Teams -->
+    <div id="adminView" style="display: none;">
+        <div class="teams-grid" id="teamsGrid">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Зареждане на екипи...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Team View -->
+    <div id="noTeamView" style="display: none;">
+        <div class="empty-state-container">
+            <i class="fas fa-inbox"></i>
+            <h2>Не сте назначени на екип</h2>
+            <p>Администраторът ще ви назначи на екип скоро</p>
+        </div>
+    </div>
+</div>
+
+<!-- Create Team Modal -->
+<div id="createTeamModal" class="modal" style="display: none;">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2>Създай нов екип</h2>
+            <button class="modal-close" onclick="closeCreateTeamModal()">&times;</button>
+        </div>
+        
+        <form id="createTeamForm" class="modal-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="teamName">Име на екипа*</label>
+                    <input type="text" id="teamName" required placeholder="Например: Екип 1">
+                </div>
+                <div class="form-group">
+                    <label for="teamStation">Станция</label>
+                    <input type="text" id="teamStation" placeholder="Например: Централна станция">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="teamType">Тип екип</label>
+                <select id="teamType">
+                    <option value="OPERATIONAL">Оперативен</option>
+                    <option value="SUPPORT">Подпомагащ</option>
+                    <option value="RESCUE">Спасителен</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="teamCommander">Командир на екипа</label>
+                <select id="teamCommander">
+                    <option value="">Избери командир</option>
+                </select>
+            </div>
+
+            <div class="form-section-title">
+                <h3>Добави членове</h3>
+            </div>
+
+            <div class="form-group">
+                <label>Disponibilni пожарникари</label>
+                <div class="firefighter-selector">
+                    <input type="text" id="firefighterSearch" placeholder="Търси по име или потребителско име...">
+                    <div id="firefighterList" class="selectable-list">
+                        <div class="empty-state">Зареждане на пожарникари...</div>
+                    </div>
+                </div>
+                <div id="selectedFirefighters" class="selected-items">
+                    <div class="empty-message">Няма избрани пожарникари</div>
+                </div>
+            </div>
+
+            <div class="form-section-title">
+                <h3>Назначи автомобил</h3>
+            </div>
+
+            <div class="form-group">
+                <label>Disponibilni автомобили</label>
+                <div class="vehicle-selector">
+                    <div id="vehicleList" class="selectable-list single-select">
+                        <div class="empty-state">Зареждане на автомобили...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeCreateTeamModal()">Отмени</button>
+                <button type="submit" class="btn-add-primary">
+                    <i class="fas fa-save"></i> Създай екип
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Team Modal -->
+<div id="editTeamModal" class="modal" style="display: none;">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2>Редактирай екип</h2>
+            <button class="modal-close" onclick="closeEditTeamModal()">&times;</button>
+        </div>
+        
+        <form id="editTeamForm" class="modal-form">
+            <input type="hidden" id="editTeamId">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editTeamName">Име на екипа</label>
+                    <input type="text" id="editTeamName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTeamStation">Станция</label>
+                    <input type="text" id="editTeamStation">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editTeamStatus">Статус</label>
+                    <select id="editTeamStatus">
+                        <option value="AVAILABLE">Disponibel</option>
+                        <option value="ON_MISSION">На задача</option>
+                        <option value="MAINTENANCE">Поддържане</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeEditTeamModal()">Отмени</button>
+                <button type="submit" class="btn-add-primary">
+                    <i class="fas fa-save"></i> Запази изменения
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/teams.js"></script>
+</body>
+</html>

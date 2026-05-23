@@ -27,7 +27,7 @@ function applyRoleBasedMenuVisibility() {
     });
 
     // Hide pages that don't exist yet
-    ["teams", "vehicles", "shifts", "settings"].forEach(page => {
+    ["shifts", "settings"].forEach(page => {
         document.querySelectorAll(`[data-page="${page}"]`).forEach(el => (el.style.display = "none"));
     });
 }
@@ -61,6 +61,8 @@ function setupEventListeners() {
             const navigationMap = {
                 "incidents": "./dashboard.html",
                 "firefighters": "./firefighters.html",
+                "teams": "./teams.html",
+                "vehicles": "./vehicles.html",
                 "profile": "./profile.html"
             };
             
@@ -573,9 +575,14 @@ async function loadNotifications() {
     notificationList.innerHTML = notifications.filter(notif => !notif.is_read).map(notif => {
         const timeStr = formatNotificationTime(notif.created_at);
         const typeIcon = getNotificationIcon(notif.type);
-        
+        // extract team id if present (content format: "team_id:123")
+        let teamIdAttr = '';
+        if (notif.content && notif.content.startsWith('team_id:')) {
+            teamIdAttr = notif.content.split(':')[1];
+        }
+
         return `
-            <div class="notification-item unread" data-notification-id="${notif.id}">
+            <div class="notification-item unread" data-notification-id="${notif.id}" data-notification-type="${notif.type}" data-team-id="${teamIdAttr}">
                 <div class="notification-item-icon">
                     ${typeIcon}
                 </div>
@@ -613,6 +620,30 @@ async function markNotificationRead(notificationId) {
         }
         // Update badge count
         updateNotificationBadge();
+        // If it was a team assignment, refresh current user and navigate to teams
+        try {
+            const el = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            const type = el?.getAttribute('data-notification-type');
+            const teamId = el?.getAttribute('data-team-id');
+            if (type === 'team_assigned') {
+                const meResp = await apiClient.get('/users/me');
+                if (meResp.ok && meResp.data.user) {
+                    const u = meResp.data.user;
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        id: u.id,
+                        full_name: u.full_name,
+                        role: u.role,
+                        username: u.username,
+                        phone: u.phone,
+                        status: u.status || 'off_duty',
+                        team_id: u.team_id || null
+                    }));
+                }
+                window.location.href = './teams.html' + (teamId ? `?team=${teamId}` : '');
+            }
+        } catch (err) {
+            // ignore
+        }
     }
 }
 
@@ -633,6 +664,8 @@ function getNotificationIcon(type) {
             return '<i class="fas fa-tasks"></i>';
         case 'new_incident':
             return '<i class="fas fa-bell"></i>';
+        case 'team_assigned':
+            return '<i class="fas fa-users"></i>';
         default:
             return '<i class="fas fa-bell"></i>';
     }
