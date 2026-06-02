@@ -23,8 +23,8 @@ function checkUserRole() {
         document.getElementById("emptyStateMessage").style.display = 'flex';
         document.getElementById("emptyStateMessage").innerHTML = `
             <i class="fas fa-lock empty-state-icon"></i>
-            <h3>Доступ забранен</h3>
-            <p>Само администратори могат да видят страницата на пожарниларите</p>
+            <h3>${t('firefighters.accessDeniedTitle')}</h3>
+            <p>${t('firefighters.accessDeniedText')}</p>
         `;
         const addFirefighterBtn = document.getElementById("addFirefighterBtn");
         if (addFirefighterBtn) addFirefighterBtn.style.display = 'none';
@@ -170,7 +170,7 @@ async function loadFirefighters() {
     const emptyStateMessage = document.getElementById("emptyStateMessage");
 
     // Show loading state
-    tableBody.innerHTML = '<tr class="loading-row"><td colspan="6">Зареждане на пожарникари...</td></tr>';
+    tableBody.innerHTML = `<tr class="loading-row"><td colspan="6">${t('firefighters.loading')}</td></tr>`;
     emptyStateMessage.style.display = "none";
 
     // Fetch firefighters from backend
@@ -192,8 +192,8 @@ async function loadFirefighters() {
         emptyStateMessage.style.display = "flex";
         emptyStateMessage.innerHTML = `
             <i class="fas fa-inbox empty-state-icon"></i>
-            <h3>Няма пожарникари</h3>
-            <p>Добавете първи пожарникар</p>
+            <h3>${t('firefighters.emptyTitle')}</h3>
+            <p>${t('firefighters.emptyDescription')}</p>
         `;
         updateStats([]);
         return;
@@ -214,7 +214,7 @@ function renderFirefighterList(firefighters) {
 
     if (firefighters.length === 0) {
         emptyStateMessage.style.display = "flex";
-        recordCount.textContent = "0 записа";
+        recordCount.textContent = formatRecordCount(0);
         return;
     }
 
@@ -222,39 +222,49 @@ function renderFirefighterList(firefighters) {
 
     firefighters.forEach(firefighter => {
         const row = document.createElement("tr");
-        const statusBadge = getStatusBadge(firefighter.status || "Активен");
+        const statusBadge = getStatusBadge(firefighter.status);
 
         row.innerHTML = `
             <td>${firefighter.name}</td>
             <td>${firefighter.username}</td>
-            <td><span class="role-badge role-firefighter"><i class="fas fa-fire"></i> Пожарникар</span></td>
+            <td><span class="role-badge role-firefighter"><i class="fas fa-fire"></i> ${t('firefighters.firefighterRole')}</span></td>
             <td>${statusBadge}</td>
             <td>${firefighter.phone || 'N/A'}</td>
             <td>
                 <button class="btn-edit" onclick="openViewDetailsForm(${firefighter.id})">
-                    <i class="fas fa-eye"></i> Преглед
+                    <i class="fas fa-eye"></i> ${t('table.view')}
                 </button>
                 <button class="btn-delete" onclick="openDeleteConfirm(${firefighter.id})">
-                    <i class="fas fa-trash"></i> Премахни
+                    <i class="fas fa-trash"></i> ${t('firefighters.detailRemoveButton')}
                 </button>
             </td>
         `;
         tableBody.appendChild(row);
     });
 
-    recordCount.textContent = `${firefighters.length} ${firefighters.length === 1 ? "запис" : "записа"}`;
+    recordCount.textContent = formatRecordCount(firefighters.length);
+}
+
+// Normalize firefighter status values for translation
+function normalizeFirefighterStatus(status) {
+    const normalized = String(status || '').trim().toLowerCase();
+    if (normalized === 'активен' || normalized === 'active' || normalized === 'on duty') return 'active';
+    if (normalized === 'отпуск' || normalized === 'vacation' || normalized === 'on leave') return 'vacation';
+    if (normalized === 'болен' || normalized === 'sick' || normalized === 'sick leave') return 'sick';
+    return 'active';
 }
 
 // Get status badge HTML
 function getStatusBadge(status) {
     const statusMap = {
-        "Активен": { class: "active", icon: "fas fa-check-circle" },
-        "Отпуск": { class: "vacation", icon: "fas fa-bed" },
-        "Болен": { class: "sick", icon: "fas fa-ambulance" }
+        active: { class: "active", icon: "fas fa-check-circle", label: t('profile.statusOnDuty') },
+        vacation: { class: "vacation", icon: "fas fa-bed", label: t('profile.statusVacation') },
+        sick: { class: "sick", icon: "fas fa-ambulance", label: t('profile.statusSickLeave') }
     };
 
-    const config = statusMap[status] || { class: "active", icon: "fas fa-check-circle" };
-    return `<span class="status-badge ${config.class}"><i class="${config.icon}"></i> ${status}</span>`;
+    const statusKey = normalizeFirefighterStatus(status);
+    const config = statusMap[statusKey] || statusMap.active;
+    return `<span class="status-badge ${config.class}"><i class="${config.icon}"></i> ${config.label}</span>`;
 }
 
 // Update statistics
@@ -262,9 +272,10 @@ function updateStats(firefighters) {
     let activeCount = 0, vacationCount = 0, sickCount = 0;
 
     firefighters.forEach(firefighter => {
-        if (firefighter.status === "Активен") activeCount++;
-        else if (firefighter.status === "Отпуск") vacationCount++;
-        else if (firefighter.status === "Болен") sickCount++;
+        const status = normalizeFirefighterStatus(firefighter.status);
+        if (status === 'active') activeCount++;
+        else if (status === 'vacation') vacationCount++;
+        else if (status === 'sick') sickCount++;
     });
 
     document.getElementById("totalCount").textContent = firefighters.length;
@@ -298,10 +309,10 @@ function openViewDetailsForm(firefighterId) {
     
     document.getElementById("detailName").textContent = firefighter.name;
     document.getElementById("detailNumber").textContent = firefighter.username;
-    document.getElementById("detailRole").textContent = "Пожарникар";
+    document.getElementById("detailRole").textContent = t('firefighters.firefighterRole');
     document.getElementById("detailPhone").textContent = firefighter.phone || "-";
     document.getElementById("detailEmail").textContent = firefighter.email || "-";
-    document.getElementById("detailStatus").innerHTML = getStatusBadge(firefighter.status || "Активен");
+    document.getElementById("detailStatus").innerHTML = getStatusBadge(firefighter.status);
     
     document.getElementById("firefighterDetailsModal").style.display = "flex";
 }
@@ -309,19 +320,19 @@ function openViewDetailsForm(firefighterId) {
 // Delete firefighter via API
 async function deleteFirefighter(firefighterId) {
     if (!window.currentUser || window.currentUser.role.toLowerCase() !== 'admin') {
-        alert("Нямате достъп да премахнете пожарникар");
+        alert(t('firefighters.removeAccessDenied'));
         return;
     }
 
     const response = await apiClient.delete(`/firefighters/delete/${firefighterId}`);
     
     if (!response.ok) {
-        alert(response.error || "Грешка при премахване на пожарникар");
+        alert(response.error || t('firefighters.removeError'));
         return;
     }
 
     console.log("Firefighter deleted:", firefighterId);
-    showNotification("Пожарникарът е успешно премахнат!", "success");
+    showNotification(t('firefighters.removeSuccess'), "success");
     closeDetailsModal();
     loadFirefighters();
 }
@@ -332,7 +343,7 @@ function openDeleteConfirm(firefighterId) {
     if (!firefighter) return;
 
     window.currentFirefighter = firefighter;
-    if (confirm(`Сигурни ли сте, че искате да премахнете ${firefighter.name}?`)) {
+    if (confirm(t('firefighters.confirmRemove', { name: firefighter.name }))) {
         deleteFirefighter(firefighterId);
     }
 }
@@ -395,14 +406,14 @@ async function loadNotifications() {
     const response = await apiClient.get('/notifications?limit=20&offset=0');
     
     if (!response.ok) {
-        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.loadError')}</div>`;
         return;
     }
     
     const notifications = response.data.notifications || [];
     
     if (notifications.length === 0) {
-        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         return;
     }
     
@@ -450,7 +461,7 @@ async function markNotificationRead(notificationId) {
         // Check if there are any unread notifications left
         const remainingNotifs = document.querySelectorAll('.notification-item');
         if (remainingNotifs.length === 0) {
-            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма нови уведомления</div>';
+            document.getElementById("notificationList").innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         }
         // Update badge count
         updateNotificationBadge();
@@ -516,11 +527,14 @@ function formatNotificationTime(dateStr) {
     const diffDays = Math.floor(diffMs / 86400000);
     
     let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
-    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
-    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
-    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
-    else relativeTime = date.toLocaleDateString('bg-BG');
+    if (diffMins < 1) relativeTime = t('notifications.relativeSeconds');
+    else if (diffMins < 60) relativeTime = t('notifications.relativeMinutes', { count: diffMins });
+    else if (diffHours < 24) relativeTime = t('notifications.relativeHours', { count: diffHours });
+    else if (diffDays < 7) relativeTime = t('notifications.relativeDays', { count: diffDays });
+    else {
+        const locale = window.currentLanguage === 'en' ? 'en-US' : 'bg-BG';
+        relativeTime = date.toLocaleDateString(locale);
+    }
     
     // Show actual time in HH:MM format (use date's timezone)
     const hours = String(date.getHours()).padStart(2, '0');

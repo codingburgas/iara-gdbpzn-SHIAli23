@@ -138,19 +138,28 @@ body {
     background: #f44336;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    display: none;
+}
+
+.language-select {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+.language-select option {
+    background: #0a0e27;
+    color: #ffffff;
 }
 
 .notification-badge.active {
     display: flex;
 }
+
 
 /* Notification Center */
 .notification-center {

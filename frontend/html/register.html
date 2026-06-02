@@ -3,80 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация - ГДПБЗН</title>
+    <title data-i18n="auth.registerTitle">Регистрация - ГДПБЗН</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/register.css">
+    <link rel="stylesheet" href="../css/i18n.css">
 </head>
 <body>
+    <div class="language-switcher-fixed">
+        <label class="language-selector">
+            <i class="fas fa-globe"></i>
+            <select id="languageSelect" class="language-select" aria-label="Language selector">
+                <option value="bg">Bulgarian</option>
+                <option value="en">English</option>
+            </select>
+        </label>
+    </div>
 
 <div class="register-page">
     <div class="register-container">
         <div class="register-graphic">
             <div class="graphic-element"></div>
             <div class="graphic-text">
-                <h2>Присъедини се</h2>
-                <p>към системата</p>
+                <h2 data-i18n="auth.joinSystem">Присъедини се</h2>
+                <p data-i18n="auth.toSystem">към системата</p>
             </div>
         </div>
 
         <div class="register-box">
             <div class="register-header">
                 <i class="fas fa-user-plus"></i>
-                <h1>Регистрация</h1>
-                <p>създай нов профил</p>
+                <h1 data-i18n="auth.register">Регистрация</h1>
+                <p data-i18n="auth.registerSubtitle">създай нов профил</p>
             </div>
 
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="full_name">Пълно име</label>
+                    <label for="full_name" data-i18n="auth.fullNameLabel">Пълно име</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="full_name" placeholder="Въведи пълното си име" required>
+                        <input type="text" id="full_name" data-i18n-placeholder="auth.fullNameInput" placeholder="Въведи пълното си име" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="username">Потребителско име</label>
+                    <label for="username" data-i18n="auth.usernameLabel">Потребителско име</label>
                     <div class="input-wrapper">
                         <i class="fas fa-at"></i>
-                        <input type="text" id="username" placeholder="Въведи потребителско име" required>
+                        <input type="text" id="username" data-i18n-placeholder="auth.usernameInput" placeholder="Въведи потребителско име" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Парола</label>
+                    <label for="password" data-i18n="auth.passwordLabel">Парола</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" placeholder="Въведи парола" required>
+                        <input type="password" id="password" data-i18n-placeholder="auth.passwordInput" placeholder="Въведи парола" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="role">Роля</label>
+                    <label for="role" data-i18n="auth.roleLabel">Роля</label>
                     <div class="input-wrapper">
                         <i class="fas fa-briefcase"></i>
                         <select id="role" required>
-                            <option value="">Избери роля</option>
-                            <option value="operator">Оператор</option>
-                            <option value="firefighter">Пожарникар</option>
-                            <option value="admin">Администратор</option>
+                            <option value="" data-i18n="auth.selectRole">Избери роля</option>
+                            <option value="operator" data-i18n="auth.operator">Оператор</option>
+                            <option value="firefighter" data-i18n="auth.firefighter">Пожарникар</option>
+                            <option value="admin" data-i18n="auth.admin">Администратор</option>
                         </select>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-register">
-                    <i class="fas fa-check"></i> Регистрация
+                    <i class="fas fa-check"></i> <span data-i18n="auth.registerButton">Регистрация</span>
                 </button>
             </form>
 
             <div class="register-footer">
-                <p>Вече имаш акаунт? <a href="login.html">Вход</a></p>
+                <p><span data-i18n="auth.haveAccount">Вече имаш акаунт?</span> <a href="login.html" data-i18n="auth.loginLink">Вход</a></p>
             </div>
         </div>
     </div>
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/language-selector.js"></script>
 <script src="../js/register.js"></script>
 </body>
 </html>

@@ -3,59 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход - ГДПБЗН</title>
+    <title data-i18n="auth.loginTitle">Вход - ГДПБЗН</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/i18n.css">
 </head>
 <body>
+    <div class="language-switcher-fixed">
+        <label class="language-selector">
+            <i class="fas fa-globe"></i>
+            <select id="languageSelect" class="language-select" aria-label="Language selector">
+                <option value="bg">Bulgarian</option>
+                <option value="en">English</option>
+            </select>
+        </label>
+    </div>
 
 <div class="login-page">
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
                 <i class="fas fa-shield-alt"></i>
-                <h1>Вход</h1>
-                <p>в информационната система</p>
+                <h1 data-i18n="auth.login">Вход</h1>
+                <p data-i18n="auth.loginSubtitle">в информационната система</p>
             </div>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Потребителско име</label>
+                    <label for="username" data-i18n="auth.usernameLabel">Потребителско име</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="username" placeholder="Въведи потребителско име" required>
+                        <input type="text" id="username" data-i18n-placeholder="auth.usernameInput" placeholder="Въведи потребителско име" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Парола</label>
+                    <label for="password" data-i18n="auth.passwordLabel">Парола</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" placeholder="Въведи парола" required>
+                        <input type="password" id="password" data-i18n-placeholder="auth.passwordInput" placeholder="Въведи парола" required>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Вход
+                    <i class="fas fa-sign-in-alt"></i> <span data-i18n="auth.loginButton">Вход</span>
                 </button>
             </form>
 
             <div class="login-footer">
-                <p>Нямаш акаунт? <a href="register.html">Регистрирай се</a></p>
+                <p><span data-i18n="auth.noAccount">Нямаш акаунт?</span> <a href="register.html" data-i18n="auth.registerLink">Регистрирай се</a></p>
             </div>
         </div>
 
         <div class="login-graphic">
             <div class="graphic-element"></div>
             <div class="graphic-text">
-                <h2>Добре дошли</h2>
-                <p>Управление на произшествия</p>
+                <h2 data-i18n="auth.welcome">Добре дошли</h2>
+                <p data-i18n="auth.systemManagement">Управление на произшествия</p>
             </div>
         </div>
     </div>
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/language-selector.js"></script>
 <script src="../js/login.js"></script>
 </body>
 </html>

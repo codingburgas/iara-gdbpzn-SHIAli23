@@ -6,34 +6,42 @@
     <title>ГДПБЗН - Информационна система</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/i18n.css">
 </head>
 <body>
+    <div class="language-switcher-fixed">
+        <label class="language-selector">
+            <i class="fas fa-globe"></i>
+            <select id="languageSelect" class="language-select" aria-label="Language selector">
+                <option value="bg">Bulgarian</option>
+                <option value="en">English</option>
+            </select>
+        </label>
+    </div>
 
-<!-- Navigation -->
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-logo">
             <i class="fas fa-shield-alt"></i>
-            <span>ГДПБЗН</span>
+            <span data-i18n="index.nav.brand">ГДПБЗН</span>
         </div>
         <ul class="nav-menu">
-            <li><a href="#features">Функции</a></li>
-            <li><a href="#about">За системата</a></li>
+            <li><a href="#features" data-i18n="index.nav.features">Функции</a></li>
+            <li><a href="#about" data-i18n="index.nav.about">За системата</a></li>
         </ul>
     </div>
 </nav>
 
-<!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
-        <h1>Информационна система на ГДПБЗН</h1>
-        <p>Управление и координация на произшествия в реално време</p>
+        <h1 data-i18n="index.hero.title">Информационна система на ГДПБЗН</h1>
+        <p data-i18n="index.hero.subtitle">Управление и координация на произшествия в реално време</p>
         <div class="hero-buttons">
             <a href="html/login.html" class="btn btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Вход
+                <i class="fas fa-sign-in-alt"></i> <span data-i18n="index.hero.loginButton">Вход</span>
             </a>
             <a href="html/register.html" class="btn btn-secondary">
-                <i class="fas fa-user-plus"></i> Регистрация
+                <i class="fas fa-user-plus"></i> <span data-i18n="index.hero.registerButton">Регистрация</span>
             </a>
         </div>
     </div>
@@ -42,59 +50,58 @@
     </div>
 </section>
 
-<!-- Features Section -->
 <section id="features" class="features">
-    <h2>Основни функции</h2>
+    <h2 data-i18n="index.features.title">Основни функции</h2>
     <div class="features-grid">
         <div class="feature-card">
             <i class="fas fa-bell"></i>
-            <h3>Управление на произшествия</h3>
-            <p>Бързо създаване, преглед и управление на всички произшествия</p>
+            <h3 data-i18n="index.features.incidentManagement">Управление на произшествия</h3>
+            <p data-i18n="index.features.incidentManagementText">Бързо създаване, преглед и управление на всички произшествия</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-users"></i>
-            <h3>Управление на екипи</h3>
-            <p>Организирайте и координирайте работните екипи</p>
+            <h3 data-i18n="index.features.teamManagement">Управление на екипи</h3>
+            <p data-i18n="index.features.teamManagementText">Организирайте и координирайте работните екипи</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-fire-truck"></i>
-            <h3>Управление на превозни средства</h3>
-            <p>Проследяване и контрол на всички превозни средства</p>
+            <h3 data-i18n="index.features.vehicleManagement">Управление на превозни средства</h3>
+            <p data-i18n="index.features.vehicleManagementText">Проследяване и контрол на всички превозни средства</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-clock"></i>
-            <h3>Планиране на смени</h3>
-            <p>Ефективно планиране на работни смени</p>
+            <h3 data-i18n="index.features.shiftPlanning">Планиране на смени</h3>
+            <p data-i18n="index.features.shiftPlanningText">Ефективно планиране на работни смени</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-chart-bar"></i>
-            <h3>Отчети и аналитика</h3>
-            <p>Детайлни статистики и анализ на произшествия</p>
+            <h3 data-i18n="index.features.analytics">Отчети и аналитика</h3>
+            <p data-i18n="index.features.analyticsText">Детайлни статистики и анализ на произшествия</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-map-location-dot"></i>
-            <h3>GPS проследяване</h3>
-            <p>Реално време локализация на екипи и средства</p>
+            <h3 data-i18n="index.features.gpsTracking">GPS проследяване</h3>
+            <p data-i18n="index.features.gpsTrackingText">Реално време локализация на екипи и средства</p>
         </div>
     </div>
 </section>
 
-<!-- About Section -->
 <section id="about" class="about">
-    <h2>За системата</h2>
+    <h2 data-i18n="index.about.title">За системата</h2>
     <div class="about-content">
-        <p>Модерната информационна система на ГДПБЗН предоставя интегрирано решение за управление на произшествия, екипи и ресурси. Системата е проектирана за максимална ефективност и лесна употреба.</p>
+        <p data-i18n="index.about.description">Модерната информационна система на ГДПБЗН предоставя интегрирано решение за управление на произшествия, екипи и ресурси. Системата е проектирана за максимална ефективност и лесна употреба.</p>
     </div>
 </section>
 
 
-<!-- Footer -->
 <footer class="footer">
     <div class="footer-content">
-        <p>&copy; 2026 ГДПБЗН. Всички права запазени.
+        <p data-i18n="index.footer.copyright">&copy; 2026 ГДПБЗН. Всички права запазени.</p>
     </div>
 </footer>
 
+<script src="js/config.js"></script>
+<script src="js/language-selector.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+const t = window.translate || ((key, params) => (window.translate ? window.translate(key, params) : key));
+
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
     if (!checkUserRole()) return;
@@ -168,7 +170,7 @@ async function loadIncidents() {
     const recordCount = document.getElementById("recordCount");
 
     // Show loading state
-    tableBody.innerHTML = '<tr class="loading-row"><td colspan="6">Зареждане на произшествия...</td></tr>';
+    tableBody.innerHTML = `<tr class="loading-row"><td colspan="6">${t('dashboard.loadingIncidents')}</td></tr>`;
     emptyStateMessage.style.display = "none";
 
     // Fetch incidents
@@ -176,7 +178,7 @@ async function loadIncidents() {
     
     if (!response.ok) {
         console.error("Error loading incidents:", response.error);
-        tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">Грешка при зареждане на произшествия</td></tr>`;
+        tableBody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color: #ff6b6b;">${t('alerts.loadDetailsError')}</td></tr>`;
         emptyStateMessage.style.display = "none";
         return;
     }
@@ -186,7 +188,7 @@ async function loadIncidents() {
     if (!data.incidents || data.incidents.length === 0) {
         tableBody.innerHTML = "";
         emptyStateMessage.style.display = "flex";
-        recordCount.textContent = "0 записа";
+        recordCount.textContent = formatRecordCount(0);
         updateStats([], data.incidents || []);
         return;
     }
@@ -201,7 +203,18 @@ async function loadIncidents() {
     populateTable(data.incidents);
 
     // Update record count
-    recordCount.textContent = `${data.incidents.length} ${data.incidents.length === 1 ? "запис" : "записа"}`;
+    recordCount.textContent = formatRecordCount(data.incidents.length);
+}
+
+// Normalize incident status values for translation and filtering
+function normalizeIncidentStatus(status) {
+    const normalized = String(status || '').trim().toLowerCase();
+    if (normalized === 'в работа' || normalized === 'in progress' || normalized === 'inprogress') return 'inProgress';
+    if (normalized === 'активно' || normalized === 'active') return 'active';
+    if (normalized === 'приключено' || normalized === 'completed') return 'completed';
+    if (normalized === 'приостановено' || normalized === 'on hold' || normalized === 'onhold') return 'onHold';
+    if (normalized === 'отменено' || normalized === 'cancelled' || normalized === 'canceled') return 'cancelled';
+    return 'active';
 }
 
 // Update statistics
@@ -209,16 +222,23 @@ function updateStats(filtered, all) {
     let activeCount = 0, completedCount = 0, onHoldCount = 0, totalCount = all.length;
     
     filtered.forEach(incident => {
-        const statusLower = (incident.status || "активно").toLowerCase();
-        if (statusLower === "активно" || statusLower === "в работа") activeCount++;
-        else if (statusLower === "приключено") completedCount++;
-        else if (statusLower === "приостановено") onHoldCount++;
+        const status = normalizeIncidentStatus(incident.status);
+        if (status === 'active' || status === 'inProgress') activeCount++;
+        else if (status === 'completed') completedCount++;
+        else if (status === 'onHold') onHoldCount++;
     });
 
     document.getElementById("activeCount").textContent = activeCount;
     document.getElementById("completedCount").textContent = completedCount;
     document.getElementById("onHoldCount").textContent = onHoldCount;
     document.getElementById("totalCount").textContent = totalCount;
+}
+
+function formatRecordCount(count) {
+    if (count === 1) {
+        return t('recordCount.one');
+    }
+    return t('recordCount.other', { count });
 }
 
 // Populate table with incidents
@@ -232,7 +252,7 @@ function populateTable(incidents) {
     if (incidents.length === 0) {
         tableBody.innerHTML = "";
         emptyStateMessage.style.display = "flex";
-        recordCount.textContent = "0 записа";
+        recordCount.textContent = formatRecordCount(0);
         return;
     }
 
@@ -240,25 +260,25 @@ function populateTable(incidents) {
 
     incidents.forEach(incident => {
         const row = document.createElement("tr");
-        const statusBadge = getStatusBadge(incident.status || "REGISTERED");
+        const statusBadge = getStatusBadge(incident.status);
         const formattedDate = formatDate(incident.created_at || new Date().toISOString());
 
         row.innerHTML = `
-            <td>${incident.id || "N/A"}</td>
-            <td>${incident.type || "Неизвестен"}</td>
-            <td>${incident.address || "N/A"}</td>
+            <td>${incident.id || t('detail.unknown')}</td>
+            <td>${incident.type || t('detail.unknown')}</td>
+            <td>${incident.address || t('detail.unknown')}</td>
             <td>${formattedDate}</td>
             <td>${statusBadge}</td>
             <td>
-                <button class="btn-action" onclick="viewIncidentDetails(${incident.id})">Преглед</button>
-                <button class="btn-action" onclick="openTaskModal(${incident.id})" style="margin-left: 6px;"><i class="fas fa-tasks"></i> Задачи</button>
+                <button class="btn-action" onclick="viewIncidentDetails(${incident.id})">${t('table.view')}</button>
+                <button class="btn-action" onclick="openTaskModal(${incident.id})" style="margin-left: 6px;"><i class="fas fa-tasks"></i> ${t('table.tasks')}</button>
             </td>
 
         `;
         tableBody.appendChild(row);
     });
 
-    recordCount.textContent = `${incidents.length} ${incidents.length === 1 ? "запис" : "записа"}`;
+    recordCount.textContent = formatRecordCount(incidents.length);
 }
 
 // Filter incidents
@@ -266,7 +286,8 @@ function filterIncidents() {
     if (!window.allIncidents) return;
 
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-    const filterStatus = document.getElementById("filterStatus").value.toLowerCase();
+    const selectedFilter = document.getElementById("filterStatus").value;
+    const normalizedFilter = selectedFilter ? normalizeIncidentStatus(selectedFilter) : '';
 
     const filtered = window.allIncidents.filter(incident => {
         const matchSearch = 
@@ -274,8 +295,8 @@ function filterIncidents() {
             (incident.type || "").toLowerCase().includes(searchTerm) ||
             (incident.address || "").toLowerCase().includes(searchTerm);
 
-        const incidentStatusLower = (incident.status || "активно").toLowerCase();
-        const matchStatus = !filterStatus || incidentStatusLower === filterStatus;
+        const incidentStatus = normalizeIncidentStatus(incident.status);
+        const matchStatus = !normalizedFilter || incidentStatus === normalizedFilter;
 
         return matchSearch && matchStatus;
     });
@@ -287,17 +308,18 @@ function filterIncidents() {
 // Get status badge HTML
 function getStatusBadge(status) {
     const statusMap = {
-        "активно": { class: "status-active", text: "Активно" },
-        "приключено": { class: "status-completed", text: "Приключено" },
-        "в работа": { class: "status-active", text: "В работа" },
-        "приостановено": { class: "status-on-hold", text: "Приостановено" },
-        "отменено": { class: "status-cancelled", text: "Отменено" }
+        active: { class: "status-active", translationKey: "filters.active" },
+        inProgress: { class: "status-active", translationKey: "filters.inProgress" },
+        completed: { class: "status-completed", translationKey: "filters.completed" },
+        onHold: { class: "status-on-hold", translationKey: "filters.onHold" },
+        cancelled: { class: "status-cancelled", translationKey: "filters.cancelled" }
     };
 
-    const statusLower = (status || "активно").toLowerCase();
-    const config = statusMap[statusLower] || statusMap["активно"];
+    const statusKey = normalizeIncidentStatus(status);
+    const config = statusMap[statusKey] || statusMap.active;
+    const label = t(config.translationKey);
 
-    return `<span class="status-badge ${config.class}">${config.text}</span>`;
+    return `<span class="status-badge ${config.class}">${label}</span>`;
 }
 
 // Format date time
@@ -320,7 +342,7 @@ async function viewIncidentDetails(incidentId) {
     const response = await apiClient.get(`/incidents/${incidentId}`);
     
     if (!response.ok) {
-        alert(response.error || "Грешка при зареждане на детайлите");
+        alert(response.error || t('alerts.loadDetailsError'));
         return;
     }
 
@@ -328,10 +350,10 @@ async function viewIncidentDetails(incidentId) {
     
             // Set modal content
             document.getElementById("detailId").textContent = incident.id || "-";
-            document.getElementById("detailType").textContent = incident.type || "-";
-            document.getElementById("detailAddress").textContent = incident.address || "-";
+            document.getElementById("detailType").textContent = incident.type || t('detail.unknown');
+            document.getElementById("detailAddress").textContent = incident.address || t('detail.unknown');
             document.getElementById("detailDateTime").textContent = formatDate(incident.created_at) || "-";
-            document.getElementById("detailDescription").textContent = incident.description || "(Няма описание)";
+            document.getElementById("detailDescription").textContent = incident.description || t('detail.noDescription');
             
             // GPS coordinates
             if (incident.latitude && incident.longitude) {
@@ -341,7 +363,7 @@ async function viewIncidentDetails(incidentId) {
                 document.getElementById("detailCoordinates").textContent = "-";
             }
             
-            document.getElementById("detailTeam").textContent = incident.team_id ? `Екип ID: ${incident.team_id}` : "Не е определен";
+            document.getElementById("detailTeam").textContent = incident.team_id ? `${t('detail.teamPrefix')} ${incident.team_id}` : t('detail.notAssigned');
             
             // Status
             const statusBadge = getStatusBadge(incident.status);
@@ -384,11 +406,11 @@ async function updateIncidentStatus() {
     });
     
     if (!response.ok) {
-        alert(response.error || "Грешка при обновяване на статуса");
+        alert(response.error || t('alerts.statusUpdateError'));
         return;
     }
 
-    alert("Статусът е успешно обновен!");
+    alert(t('alerts.statusUpdateSuccess'));
     closeIncidentModal();
     loadIncidents();
 }
@@ -406,7 +428,7 @@ function deleteIncidentConfirm() {
     if (!window.currentIncident) return;
     
     const incidentId = window.currentIncident.id;
-    const confirmDelete = confirm(`Наистина ли искаш да изтриеш произшествието #${incidentId}? Това действие е необратимо.`);
+    const confirmDelete = confirm(t('alerts.deleteConfirm', { id: incidentId }));
     
     if (!confirmDelete) return;
     
@@ -418,11 +440,11 @@ async function deleteIncident(incidentId) {
     const response = await apiClient.delete(`/incidents/${incidentId}`);
     
     if (!response.ok) {
-        alert(response.error || "Възникна грешка при изтриване на произшествието");
+        alert(response.error || t('alerts.deleteError'));
         return;
     }
 
-    alert("Произшествието е успешно изтрито!");
+    alert(t('alerts.deleteSuccess'));
     closeIncidentModal();
     loadIncidents();
 }
@@ -453,17 +475,17 @@ function closeTaskModal() {
 async function loadTasks(incidentId) {
     const taskList = document.getElementById("taskList");
     if (!taskList) return;
-    taskList.innerHTML = '<div class="task-empty-state">Зареждане...</div>';
+    taskList.innerHTML = `<div class="task-empty-state">${t('task.loading')}</div>`;
     
     const response = await apiClient.get(`/incidents/${incidentId}/tasks`);
     if (!response.ok) {
-        taskList.innerHTML = `<div class="task-empty-state" style="color: #ff6b6b;">Грешка при зареждане на задачите</div>`;
+        taskList.innerHTML = `<div class="task-empty-state" style="color: #ff6b6b;">${t('task.loadError')}</div>`;
         return;
     }
     
     const tasks = response.data.tasks || [];
     if (tasks.length === 0) {
-        taskList.innerHTML = '<div class="task-empty-state"><i class="fas fa-clipboard-list"></i><p>Няма задачи</p></div>';
+        taskList.innerHTML = `<div class="task-empty-state"><i class="fas fa-clipboard-list"></i><p>${t('task.noTasks')}</p></div>`;
         return;
     }
     
@@ -471,13 +493,13 @@ async function loadTasks(incidentId) {
         <div class="task-item">
             <h4>${escapeHtml(task.title)}</h4>
             <div class="task-item-description">
-                ${task.description ? escapeHtml(task.description) : '<i>Без описание</i>'}
+                ${task.description ? escapeHtml(task.description) : `<i>${t('task.noDescription')}</i>`}
             </div>
             <div class="task-item-footer">
                 <span class="task-status ${task.status === 'done' ? 'done' : 'pending'}">
-                    ${task.status === 'done' ? 'Изпълнена' : 'В процес'}
+                    ${task.status === 'done' ? t('task.done') : t('task.pending')}
                 </span>
-                ${task.status !== 'done' ? `<button class="task-action-button" onclick="updateTaskStatus(${task.id})">Маркирай като готова</button>` : ''}
+                ${task.status !== 'done' ? `<button class="task-action-button" onclick="updateTaskStatus(${task.id})">${t('task.markDone')}</button>` : ''}
             </div>
         </div>
     `).join("");
@@ -498,7 +520,7 @@ async function addTask() {
     const title = document.getElementById("taskTitle").value.trim();
     const description = document.getElementById("taskDescription").value.trim();
     if (!title) {
-        alert("Моля, въведете заглавие.");
+        alert(t('task.enterTitle'));
         return;
     }
     const response = await apiClient.post(`/incidents/${currentTaskIncidentId}/tasks`, {
@@ -506,7 +528,7 @@ async function addTask() {
         description
     });
     if (!response.ok) {
-        alert("Грешка при добавяне на задачата: " + (response.error || "Unknown error"));
+        alert(t('alerts.taskAddError', { error: response.error || 'Unknown error' }));
         return;
     }
     document.getElementById("taskTitle").value = "";
@@ -517,7 +539,7 @@ async function addTask() {
 async function updateTaskStatus(taskId) {
     const response = await apiClient.put(`/tasks/${taskId}/status`, { status: "done" });
     if (!response.ok) {
-        alert("Грешка при обновяване на статуса на задачата");
+        alert(t('alerts.taskUpdateError'));
         return;
     }
     loadTasks(currentTaskIncidentId);
@@ -561,14 +583,14 @@ async function loadNotifications() {
     const response = await apiClient.get('/notifications?limit=20&offset=0');
     
     if (!response.ok) {
-        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.loadError')}</div>`;
         return;
     }
     
     const notifications = response.data.notifications || [];
     
     if (notifications.length === 0) {
-        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         return;
     }
     
@@ -616,7 +638,7 @@ async function markNotificationRead(notificationId) {
         // Check if there are any unread notifications left
         const remainingNotifs = document.querySelectorAll('.notification-item');
         if (remainingNotifs.length === 0) {
-            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма нови уведомления</div>';
+            document.getElementById("notificationList").innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         }
         // Update badge count
         updateNotificationBadge();
@@ -685,11 +707,11 @@ function formatNotificationTime(dateStr) {
     const diffDays = Math.floor(diffMs / 86400000);
     
     let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
-    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
-    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
-    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
-    else relativeTime = date.toLocaleDateString('bg-BG');
+    if (diffMins < 1) relativeTime = t('notifications.relativeSeconds');
+    else if (diffMins < 60) relativeTime = t('notifications.relativeMinutes', { count: diffMins });
+    else if (diffHours < 24) relativeTime = t('notifications.relativeHours', { count: diffHours });
+    else if (diffDays < 7) relativeTime = t('notifications.relativeDays', { count: diffDays });
+    else relativeTime = date.toLocaleDateString(window.currentLanguage === 'en' ? 'en-US' : 'bg-BG');
     
     // Show actual time in HH:MM format (use date's timezone)
     const hours = String(date.getHours()).padStart(2, '0');

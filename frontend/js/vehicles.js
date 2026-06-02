@@ -142,14 +142,14 @@ async function loadVehicles() {
         const response = await apiClient.get('/vehicles/list');
         
         if (!response.ok) {
-            throw new Error("Грешка при зареждане на автомобили");
+            throw new Error(t('vehicles.loadVehiclesError'));
         }
 
         allVehicles = response.data.vehicles || [];
         displayVehicles(allVehicles);
     } catch (error) {
         console.error("Error loading vehicles:", error);
-        document.getElementById("vehiclesGrid").innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">Грешка при зареждане на автомобили</div>`;
+        document.getElementById("vehiclesGrid").innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">${t('vehicles.loadVehiclesError')}</div>`;
     }
 }
 
@@ -157,7 +157,7 @@ function displayVehicles(vehicles) {
     const container = document.getElementById("vehiclesGrid");
     
     if (vehicles.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">Няма автомобили</div>';
+        container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">${t('vehicles.noVehicles')}</div>`;
         return;
     }
 
@@ -169,24 +169,24 @@ function displayVehicles(vehicles) {
             </div>
             <div class="vehicle-card-body">
                 <div class="vehicle-info-row">
-                    <span class="vehicle-info-label">Тип:</span>
+                    <span class="vehicle-info-label">${t('vehicles.detailLabelType')}:</span>
                     <span class="vehicle-info-value">${getVehicleTypeLabel(vehicle.type)}</span>
                 </div>
                 <div class="vehicle-info-row">
-                    <span class="vehicle-info-label">Статус:</span>
+                    <span class="vehicle-info-label">${t('vehicles.detailLabelStatus')}:</span>
                     <span class="vehicle-info-value">${getStatusLabel(vehicle.status)}</span>
                 </div>
                 <div class="vehicle-info-row">
-                    <span class="vehicle-info-label">Екип:</span>
+                    <span class="vehicle-info-label">${t('vehicles.teamLabel') || 'Team'}:</span>
                     <span class="vehicle-info-value">${vehicle.team_name || '-'}</span>
                 </div>
                 ${vehicle.capacity_water ? `<div class="vehicle-info-row">
-                    <span class="vehicle-info-label">Вода:</span>
-                    <span class="vehicle-info-value">${vehicle.capacity_water}л</span>
+                    <span class="vehicle-info-label">${t('vehicles.detailLabelWaterCapacity')}:</span>
+                    <span class="vehicle-info-value">${vehicle.capacity_water}${t('vehicles.literSuffix')}</span>
                 </div>` : ''}
                 ${vehicle.capacity_foam ? `<div class="vehicle-info-row">
-                    <span class="vehicle-info-label">Пяна:</span>
-                    <span class="vehicle-info-value">${vehicle.capacity_foam}л</span>
+                    <span class="vehicle-info-label">${t('vehicles.detailLabelFoamCapacity')}:</span>
+                    <span class="vehicle-info-value">${vehicle.capacity_foam}${t('vehicles.literSuffix')}</span>
                 </div>` : ''}
                 <div style="margin-top: 10px;">
                     <span class="vehicle-type-badge">${getVehicleTypeLabel(vehicle.type)}</span>
@@ -195,7 +195,7 @@ function displayVehicles(vehicles) {
             </div>
             <div class="vehicle-card-footer">
                 <button onclick="openVehicleDetails(${vehicle.id})">
-                    <i class="fas fa-info-circle"></i> Детайли
+                    <i class="fas fa-info-circle"></i> ${t('vehicles.detailsButton') || 'Details'}
                 </button>
             </div>
         </div>
@@ -238,7 +238,7 @@ async function handleRegisterVehicle(e) {
     const foamCapacity = document.getElementById("vehicleFoamCapacity").value;
 
     if (!callsign || !plate || !type) {
-        alert("Моля, попълнете всички задължителни полета");
+        alert(t('vehicles.fillRequiredFields'));
         return;
     }
 
@@ -254,14 +254,14 @@ async function handleRegisterVehicle(e) {
         const response = await apiClient.post('/vehicles/register', payload);
 
         if (!response.ok) {
-            throw new Error(response.error || "Грешка при регистриране на автомобил");
+            throw new Error(response.error || t('vehicles.registerError'));
         }
 
-        alert("Автомобилът е успешно регистриран!");
+        alert(t('vehicles.registerSuccess'));
         closeRegisterVehicleModal();
         loadVehicles();
     } catch (error) {
-        alert("Грешка: " + error.message);
+        alert(`${t('alerts.errorPrefix')}: ${error.message}`);
     }
 }
 
@@ -270,7 +270,7 @@ async function openVehicleDetails(vehicleId) {
         const response = await apiClient.get(`/vehicles/${vehicleId}`);
 
         if (!response.ok) {
-            throw new Error("Грешка при зареждане на детайли");
+            throw new Error(t('vehicles.loadDetailsError'));
         }
 
         const vehicle = response.data;
@@ -279,8 +279,8 @@ async function openVehicleDetails(vehicleId) {
         document.getElementById("detailPlate").textContent = escapeHtml(vehicle.plate_number);
         document.getElementById("detailType").textContent = getVehicleTypeLabel(vehicle.type);
         document.getElementById("detailStatus").textContent = getStatusLabel(vehicle.status);
-        document.getElementById("detailWaterCapacity").textContent = vehicle.capacity_water ? `${vehicle.capacity_water}л` : '-';
-        document.getElementById("detailFoamCapacity").textContent = vehicle.capacity_foam ? `${vehicle.capacity_foam}л` : '-';
+        document.getElementById("detailWaterCapacity").textContent = vehicle.capacity_water ? `${vehicle.capacity_water}${t('vehicles.literSuffix')}` : '-';
+        document.getElementById("detailFoamCapacity").textContent = vehicle.capacity_foam ? `${vehicle.capacity_foam}${t('vehicles.literSuffix')}` : '-';
         document.getElementById("detailAssignedTeam").textContent = vehicle.team_name || '-';
         document.getElementById("detailLocation").textContent = vehicle.latitude && vehicle.longitude 
             ? `${vehicle.latitude.toFixed(4)}, ${vehicle.longitude.toFixed(4)}` 
@@ -288,7 +288,7 @@ async function openVehicleDetails(vehicleId) {
 
         document.getElementById("vehicleDetailsModal").style.display = "flex";
     } catch (error) {
-        alert("Грешка: " + error.message);
+        alert(`${t('alerts.errorPrefix')}: ${error.message}`);
     }
 }
 
@@ -298,18 +298,18 @@ function closeVehicleDetailsModal() {
 
 function getVehicleTypeLabel(type) {
     const labels = {
-        'FIRE_TRUCK': 'Пожарен автомобил',
-        'CISTERN': 'Цистерна',
-        'SUPPORT': 'Подпомагащ'
+        'FIRE_TRUCK': t('vehicles.filters.fireTruck'),
+        'CISTERN': t('vehicles.filters.cistern'),
+        'SUPPORT': t('vehicles.filters.support')
     };
     return labels[type] || type;
 }
 
 function getStatusLabel(status) {
     const labels = {
-        'AVAILABLE': 'Disponibel',
-        'ON_MISSION': 'На задача',
-        'MAINTENANCE': 'Поддържане'
+        'AVAILABLE': t('vehicles.statusAvailable'),
+        'ON_MISSION': t('vehicles.statusOnMission'),
+        'MAINTENANCE': t('vehicles.statusMaintenance')
     };
     return labels[status] || status;
 }
@@ -359,14 +359,14 @@ async function loadNotifications() {
     const response = await apiClient.get('/notifications?limit=20&offset=0');
     
     if (!response.ok) {
-        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.loadError')}</div>`;
         return;
     }
     
     const notifications = response.data.notifications || [];
     
     if (notifications.length === 0) {
-        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         return;
     }
     
@@ -406,7 +406,7 @@ async function markNotificationRead(notificationId) {
         }
         const remainingNotifs = document.querySelectorAll('.notification-item');
         if (remainingNotifs.length === 0) {
-            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+            document.getElementById("notificationList").innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         }
         updateNotificationBadge();
     }
@@ -447,11 +447,14 @@ function formatNotificationTime(dateStr) {
     const diffDays = Math.floor(diffMs / 86400000);
     
     let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
-    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
-    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
-    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
-    else relativeTime = date.toLocaleDateString('bg-BG');
+    if (diffMins < 1) relativeTime = t('notifications.relativeSeconds');
+    else if (diffMins < 60) relativeTime = t('notifications.relativeMinutes', { count: diffMins });
+    else if (diffHours < 24) relativeTime = t('notifications.relativeHours', { count: diffHours });
+    else if (diffDays < 7) relativeTime = t('notifications.relativeDays', { count: diffDays });
+    else {
+        const locale = window.currentLanguage === 'en' ? 'en-US' : 'bg-BG';
+        relativeTime = date.toLocaleDateString(locale);
+    }
     
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');

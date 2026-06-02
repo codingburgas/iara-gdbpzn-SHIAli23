@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пожарникари</title>
+    <title data-i18n="firefighters.title">Пожарникари</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/firefighters.css">
     <link rel="stylesheet" href="../css/modal.css">
+    <link rel="stylesheet" href="../css/i18n.css">
 </head>
 <body>
 
@@ -16,15 +17,22 @@
         <button id="menuBtn" class="menu-btn">
             <i class="fas fa-bars"></i>
         </button>
-        <h1 class="topbar-title">Пожарникари</h1>
+        <h1 class="topbar-title" data-i18n="firefighters.title">Пожарникари</h1>
     </div>
     <div class="topbar-right">
-        <span class="topbar-subtitle">Управление на пожарникари</span>
-        <button id="notificationBtn" class="notification-btn">
+        <span class="topbar-subtitle" data-i18n="firefighters.subtitle">Управление на пожарникари</span>
+        <div class="language-selector">
+            <i class="fas fa-globe"></i>
+            <select id="languageSelect" class="language-select" aria-label="Language selector">
+                <option value="bg">Bulgarian</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <button id="notificationBtn" class="notification-btn" data-i18n-title="notifications.title">
             <i class="fas fa-bell"></i>
             <span id="unreadBadge" class="notification-badge">0</span>
         </button>
-        <button id="logoutBtn" class="topbar-logout">
+        <button id="logoutBtn" class="topbar-logout" data-i18n-title="menu.profile">
             <i class="fas fa-sign-out-alt"></i>
         </button>
     </div>
@@ -33,16 +41,16 @@
 <!-- Notification Center -->
 <div id="notificationCenter" class="notification-center">
     <div class="notification-center-header">
-        <h3>Уведомления</h3>
-        <button id="closeNotificationCenter" class="close-notification-center">
+        <h3 data-i18n="notifications.title">Уведомления</h3>
+        <button id="closeNotificationCenter" class="close-notification-center" data-i18n-title="notifications.title">
             <i class="fas fa-times"></i>
         </button>
     </div>
     <div id="notificationList" class="notification-list">
-        <div class="notification-empty">Няма нови уведомления</div>
+        <div class="notification-empty" data-i18n="notifications.noNotifications">Няма нови уведомления</div>
     </div>
     <div class="notification-center-footer">
-        <button id="markAllReadBtn" class="btn-mark-all-read">Маркирай всички като прочетени</button>
+        <button id="markAllReadBtn" class="btn-mark-all-read" data-i18n="notifications.markAllRead">Маркирай всички като прочетени</button>
     </div>
 </div>
 
@@ -50,7 +58,7 @@
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-shield-alt logo-icon"></i>
-            <h2>ГДПБЗН</h2>
+            <h2 data-i18n="common.brand">ГДПБЗН</h2>
         </div>
     </div>
 
@@ -58,31 +66,31 @@
         <ul class="menu">
             <li class="menu-item" data-page="incidents">
                 <i class="fas fa-bell"></i>
-                <span>Произшествия</span>
+                <span data-i18n="menu.incidents">Произшествия</span>
             </li>
             <li class="menu-item active" data-page="firefighters" data-admin-only="true">
                 <i class="fas fa-person"></i>
-                <span>Пожарникари</span>
+                <span data-i18n="menu.firefighters">Пожарникари</span>
             </li>
             <li class="menu-item" data-page="teams">
                 <i class="fas fa-users"></i>
-                <span>Екипи</span>
+                <span data-i18n="menu.teams">Екипи</span>
             </li>
             <li class="menu-item" data-page="vehicles">
                 <i class="fas fa-fire-truck"></i>
-                <span>Автомобили</span>
+                <span data-i18n="menu.vehicles">Автомобили</span>
             </li>
             <li class="menu-item" data-page="shifts">
                 <i class="fas fa-clock"></i>
-                <span>Смени</span>
+                <span data-i18n="menu.shifts">Смени</span>
             </li>
             <li class="menu-item" data-page="settings">
                 <i class="fas fa-cog"></i>
-                <span>Настройки</span>
+                <span data-i18n="menu.settings">Настройки</span>
             </li>
             <li class="menu-item" data-page="profile">
                 <i class="fas fa-id-badge"></i>
-                <span>Профил</span>
+                <span data-i18n="menu.profile">Профил</span>
             </li>
         </ul>
     </nav>
@@ -91,8 +99,8 @@
 <div class="content">
     <div class="dashboard-header">
         <div class="header-title">
-            <h1>Пожарникари</h1>
-            <p>Преглед на всички регистрирани пожарникари</p>
+            <h1 data-i18n="firefighters.title">Пожарникари</h1>
+            <p data-i18n="firefighters.description">Преглед на всички регистрирани пожарникари</p>
         </div>
     </div>
 
@@ -101,46 +109,46 @@
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-users stat-icon"></i>
-                <span class="stat-label">Общо пожарникари</span>
+                <span class="stat-label" data-i18n="firefighters.stats.total">Общо пожарникари</span>
             </div>
             <div class="stat-card-value" id="totalCount">0</div>
-            <div class="stat-card-footer">Всички регистрирани</div>
+            <div class="stat-card-footer" data-i18n="firefighters.stats.allRegistered">Всички регистрирани</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-check-circle stat-icon"></i>
-                <span class="stat-label">Активни</span>
+                <span class="stat-label" data-i18n="firefighters.stats.active">Активни</span>
             </div>
             <div class="stat-card-value" id="activeCount">0</div>
-            <div class="stat-card-footer">На дежурство</div>
+            <div class="stat-card-footer" data-i18n="firefighters.stats.onDuty">На дежурство</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-bed stat-icon"></i>
-                <span class="stat-label">На отпуск</span>
+                <span class="stat-label" data-i18n="firefighters.stats.onVacation">На отпуск</span>
             </div>
             <div class="stat-card-value" id="vacationCount">0</div>
-            <div class="stat-card-footer">На почивка</div>
+            <div class="stat-card-footer" data-i18n="firefighters.stats.onBreak">На почивка</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-ambulance stat-icon"></i>
-                <span class="stat-label">Болни</span>
+                <span class="stat-label" data-i18n="firefighters.stats.sick">Болни</span>
             </div>
             <div class="stat-card-value" id="sickCount">0</div>
-            <div class="stat-card-footer">На болнично отпускане</div>
+            <div class="stat-card-footer" data-i18n="firefighters.stats.onSickLeave">На болнично отпускане</div>
         </div>
     </div>
 
     <!-- Firefighters Panel -->
     <div class="panel-container">
         <div class="panel-header">
-            <h2>Списък с пожарникари</h2>
+            <h2 data-i18n="firefighters.listTitle">Списък с пожарникари</h2>
             <div class="panel-controls">
-                <input type="text" id="searchInput" class="search-box" placeholder="Търси по име или потребителско име...">
+                <input type="text" id="searchInput" class="search-box" data-i18n-placeholder="firefighters.searchPlaceholder" placeholder="Търси по име или потребителско име...">
             </div>
         </div>
 
@@ -149,30 +157,30 @@
                 <table id="firefightersTable" class="firefighters-table">
                     <thead>
                         <tr>
-                            <th>Име</th>
-                            <th>Номер</th>
-                            <th>Должност</th>
-                            <th>Статус</th>
-                            <th>Телефон</th>
-                            <th>Действия</th>
+                            <th data-i18n="firefighters.table.name">Име</th>
+                            <th data-i18n="firefighters.table.number">Номер</th>
+                            <th data-i18n="firefighters.table.role">Должност</th>
+                            <th data-i18n="firefighters.table.status">Статус</th>
+                            <th data-i18n="firefighters.table.phone">Телефон</th>
+                            <th data-i18n="firefighters.table.actions">Действия</th>
                         </tr>
                     </thead>
                     <tbody id="firefightersTableBody">
                         <tr class="loading-row">
-                            <td colspan="6">Зареждане на пожарникари...</td>
+                            <td colspan="6" data-i18n="firefighters.loading">Зареждане на пожарникари...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div id="emptyStateMessage" class="empty-state" style="display: none;">
                 <i class="fas fa-inbox empty-state-icon"></i>
-                <h3>Няма пожарникари</h3>
-                <p>Добавете първи пожарникар</p>
+                <h3 data-i18n="firefighters.emptyTitle">Няма пожарникари</h3>
+                <p data-i18n="firefighters.emptyDescription">Добавете първи пожарникар</p>
             </div>
         </div>
         
         <div class="panel-footer">
-            <span id="recordCount">0 записа</span>
+            <span id="recordCount">0</span>
         </div>
     </div>
 </div>
@@ -181,43 +189,44 @@
 <div id="firefighterDetailsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Детайли на пожарникар</h2>
+            <h2 data-i18n="firefighters.detailsHeading">Детайли на пожарникар</h2>
             <button type="button" class="modal-close" onclick="closeDetailsModal()">&times;</button>
         </div>
         <div class="modal-body">
             <div class="detail-group">
-                <label>Име:</label>
+                <label data-i18n="firefighters.detailNameLabel">Име:</label>
                 <span id="detailName">-</span>
             </div>
             <div class="detail-group">
-                <label>Потребителско име:</label>
+                <label data-i18n="firefighters.detailUsernameLabel">Потребителско име:</label>
                 <span id="detailNumber">-</span>
             </div>
             <div class="detail-group">
-                <label>Должност:</label>
+                <label data-i18n="firefighters.detailRoleLabel">Должност:</label>
                 <span id="detailRole">-</span>
             </div>
             <div class="detail-group">
-                <label>Статус:</label>
+                <label data-i18n="firefighters.detailStatusLabel">Статус:</label>
                 <div id="detailStatus">-</div>
             </div>
             <div class="detail-group">
-                <label>Телефон:</label>
+                <label data-i18n="firefighters.detailPhoneLabel">Телефон:</label>
                 <span id="detailPhone">-</span>
             </div>
             <div class="detail-group">
-                <label>Email:</label>
+                <label data-i18n="firefighters.detailEmailLabel">Email:</label>
                 <span id="detailEmail">-</span>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeDetailsModal()">Затвори</button>
-            <button type="button" class="btn-danger" id="deleteDetailsBtn" onclick="if(window.currentFirefighter) deleteFirefighter(window.currentFirefighter.id)">Премахни</button>
+            <button type="button" class="btn-secondary" onclick="closeDetailsModal()" data-i18n="firefighters.detailCloseButton">Затвори</button>
+            <button type="button" class="btn-danger" id="deleteDetailsBtn" onclick="if(window.currentFirefighter) deleteFirefighter(window.currentFirefighter.id)" data-i18n="firefighters.detailRemoveButton">Премахни</button>
         </div>
     </div>
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/language-selector.js"></script>
 <script src="../js/firefighters.js"></script>
 
 </body>

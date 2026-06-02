@@ -9,7 +9,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     const registerBtn = e.target.querySelector('button[type="submit"]');
     const originalHtml = registerBtn.innerHTML;
     registerBtn.disabled = true;
-    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+    registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('auth.registerButtonLoading')}`;
 
     try {
         const response = await apiClient.post('/auth/register', {
@@ -20,16 +20,16 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         });
 
         if (!response.ok) {
-            alert(response.error || "Грешка при регистрация");
+            alert(response.error || t('alerts.registerError'));
             registerBtn.disabled = false;
             registerBtn.innerHTML = originalHtml;
             return;
         }
 
-        alert("Успешна регистрация!");
+        alert(t('alerts.registerSuccess'));
         window.location.href = "login.html";
     } catch (error) {
-        alert("Грешка при регистрация: " + error.message);
+        alert(`${t('alerts.registerError')}: ${error.message}`);
         registerBtn.disabled = false;
         registerBtn.innerHTML = originalHtml;
     }

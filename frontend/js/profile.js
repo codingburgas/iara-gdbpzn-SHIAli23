@@ -121,7 +121,7 @@ async function loadProfile() {
     try {
         const response = await apiClient.get('/users/me');
         if (!response.ok) {
-            throw new Error(response.error || "Неуспешно зареждане на профила.");
+            throw new Error(response.error || t('alerts.profileLoadError'));
         }
         const user = response.data.user;
         document.getElementById("fullName").value = user.full_name || "";
@@ -154,19 +154,19 @@ async function handleSaveProfile(e) {
     const status = document.getElementById("status")?.value;
 
     if (!full_name || !username) {
-        showMessage("Моля, попълнете пълно име и потребителско име.", "error");
+        showMessage(t('alerts.invalidProfile'), "error");
         return;
     }
 
     if ((new_password || confirm_password) && new_password !== confirm_password) {
-        showMessage("Паролите не съвпадат.", "error");
+        showMessage(t('alerts.passwordMismatch'), "error");
         return;
     }
 
     const saveBtn = document.getElementById("saveProfileBtn");
     const originalBtnHtml = saveBtn.innerHTML;
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Запазване...';
+    saveBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('profile.saveButtonLoading')}`;
 
     try {
         const payload = {
@@ -179,14 +179,14 @@ async function handleSaveProfile(e) {
         // Update profile info
         const response = await apiClient.put('/users/me', payload);
         if (!response.ok) {
-            throw new Error(response.error || "Неуспешно обновяване на профила.");
+            throw new Error(response.error || t('alerts.profileUpdateError'));
         }
 
         // If firefighter, update status as well
         if (role === 'firefighter' && status) {
             const statusResp = await apiClient.put('/firefighters/me/status', { status });
             if (!statusResp.ok) {
-                throw new Error(statusResp.error || "Неуспешна промяна на статус.");
+                throw new Error(statusResp.error || t('alerts.statusUpdateError'));
             }
             // Ensure dropdown stays on the selected value
             document.getElementById("status").value = status;
@@ -207,7 +207,7 @@ async function handleSaveProfile(e) {
         document.getElementById("newPassword").value = "";
         document.getElementById("confirmPassword").value = "";
 
-        showMessage("Профилът е обновен успешно.", "success");
+        showMessage(t('alerts.profileUpdateSuccess'), "success");
     } catch (err) {
         showMessage(err.message, "error");
     } finally {
@@ -262,14 +262,14 @@ async function loadNotifications() {
     const response = await apiClient.get('/notifications?limit=20&offset=0');
     
     if (!response.ok) {
-        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.loadError')}</div>`;
         return;
     }
     
     const notifications = response.data.notifications || [];
     
     if (notifications.length === 0) {
-        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         return;
     }
     
@@ -317,7 +317,7 @@ async function markNotificationRead(notificationId) {
         // Check if there are any unread notifications left
         const remainingNotifs = document.querySelectorAll('.notification-item');
         if (remainingNotifs.length === 0) {
-            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма нови уведомления</div>';
+            document.getElementById("notificationList").innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         }
         // Update badge count
         updateNotificationBadge();
@@ -384,11 +384,14 @@ function formatNotificationTime(dateStr) {
     const diffDays = Math.floor(diffMs / 86400000);
     
     let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
-    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
-    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
-    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
-    else relativeTime = date.toLocaleDateString('bg-BG');
+    if (diffMins < 1) relativeTime = t('notifications.relativeSeconds');
+    else if (diffMins < 60) relativeTime = t('notifications.relativeMinutes', { count: diffMins });
+    else if (diffHours < 24) relativeTime = t('notifications.relativeHours', { count: diffHours });
+    else if (diffDays < 7) relativeTime = t('notifications.relativeDays', { count: diffDays });
+    else {
+        const locale = window.currentLanguage === 'en' ? 'en-US' : 'bg-BG';
+        relativeTime = date.toLocaleDateString(locale);
+    }
     
     // Show actual time in HH:MM format (use date's timezone)
     const hours = String(date.getHours()).padStart(2, '0');

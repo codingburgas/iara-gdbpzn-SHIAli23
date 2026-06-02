@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Табло</title>
+    <title data-i18n="dashboard.title">Табло</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/modal.css">
+    <link rel="stylesheet" href="../css/i18n.css">
 </head>
 <body>
 
@@ -15,15 +16,22 @@
         <button id="menuBtn" class="menu-btn">
             <i class="fas fa-bars"></i>
         </button>
-        <h1 class="topbar-title">Табло</h1>
+        <h1 class="topbar-title" data-i18n="dashboard.title">Табло</h1>
     </div>
     <div class="topbar-right">
-        <span class="topbar-subtitle">Управление на произшествия</span>
+        <span class="topbar-subtitle" data-i18n="dashboard.subtitle">Управление на произшествия</span>
+        <div class="language-selector">
+            <i class="fas fa-globe"></i>
+            <select id="languageSelect" class="language-select" aria-label="Language selector">
+                <option value="bg">Bulgarian</option>
+                <option value="en">English</option>
+            </select>
+        </div>
         <button id="notificationBtn" class="notification-btn">
             <i class="fas fa-bell"></i>
             <span id="unreadBadge" class="notification-badge">0</span>
         </button>
-        <button id="logoutBtn" class="topbar-logout">
+        <button id="logoutBtn" class="topbar-logout" data-i18n-title="menu.profile">
             <i class="fas fa-sign-out-alt"></i>
         </button>
     </div>
@@ -32,16 +40,16 @@
 <!-- Notification Center -->
 <div id="notificationCenter" class="notification-center">
     <div class="notification-center-header">
-        <h3>Уведомления</h3>
-        <button id="closeNotificationCenter" class="close-notification-center">
+        <h3 data-i18n="notifications.title">Уведомления</h3>
+        <button id="closeNotificationCenter" class="close-notification-center" data-i18n-title="notifications.title">
             <i class="fas fa-times"></i>
         </button>
     </div>
     <div id="notificationList" class="notification-list">
-        <div class="notification-empty">Няма нови уведомления</div>
+        <div class="notification-empty" data-i18n="notifications.noNotifications">Няма нови уведомления</div>
     </div>
     <div class="notification-center-footer">
-        <button id="markAllReadBtn" class="btn-mark-all-read">Маркирай всички като прочетени</button>
+        <button id="markAllReadBtn" class="btn-mark-all-read" data-i18n="notifications.markAllRead">Маркирай всички като прочетени</button>
     </div>
 </div>
 
@@ -49,7 +57,7 @@
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-shield-alt logo-icon"></i>
-            <h2>ГДПБЗН</h2>
+            <h2 data-i18n="common.brand">ГДПБЗН</h2>
         </div>
     </div>
 
@@ -57,31 +65,31 @@
         <ul class="menu">
             <li class="menu-item active" data-page="incidents">
                 <i class="fas fa-bell"></i>
-                <span>Произшествия</span>
+                <span data-i18n="menu.incidents">Произшествия</span>
             </li>
             <li class="menu-item" data-page="firefighters" data-admin-only="true">
                 <i class="fas fa-person"></i>
-                <span>Пожарникари</span>
+                <span data-i18n="menu.firefighters">Пожарникари</span>
             </li>
             <li class="menu-item" data-page="teams">
                 <i class="fas fa-users"></i>
-                <span>Екипи</span>
+                <span data-i18n="menu.teams">Екипи</span>
             </li>
             <li class="menu-item" data-page="vehicles">
                 <i class="fas fa-fire-truck"></i>
-                <span>Автомобили</span>
+                <span data-i18n="menu.vehicles">Автомобили</span>
             </li>
             <li class="menu-item" data-page="shifts">
                 <i class="fas fa-clock"></i>
-                <span>Смени</span>
+                <span data-i18n="menu.shifts">Смени</span>
             </li>
             <li class="menu-item" data-page="settings">
                 <i class="fas fa-cog"></i>
-                <span>Настройки</span>
+                <span data-i18n="menu.settings">Настройки</span>
             </li>
             <li class="menu-item" data-page="profile">
                 <i class="fas fa-id-badge"></i>
-                <span>Профил</span>
+                <span data-i18n="menu.profile">Профил</span>
             </li>
         </ul>
     </nav>
@@ -90,11 +98,11 @@
 <div class="content">
     <div class="dashboard-header">
         <div class="header-title">
-            <h1>Произшествия</h1>
-            <p>Управление и преглед на всички произшествия</p>
+            <h1 data-i18n="dashboard.title">Произшествия</h1>
+            <p data-i18n="dashboard.subtitle">Управление и преглед на всички произшествия</p>
         </div>
         <button id="addIncidentBtn" class="btn-add-primary">
-            <i class="fas fa-plus"></i> Добави произшествие
+            <i class="fas fa-plus"></i> <span data-i18n="dashboard.addIncident">Добави произшествие</span>
         </button>
     </div>
 
@@ -103,53 +111,53 @@
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-exclamation-triangle stat-icon"></i>
-                <span class="stat-label">Общо произшествия</span>
+                <span class="stat-label" data-i18n="stats.totalIncidents">Общо произшествия</span>
             </div>
             <div class="stat-card-value" id="totalCount">0</div>
-            <div class="stat-card-footer">Всички произшествия</div>
+            <div class="stat-card-footer" data-i18n="stats.allIncidents">Всички произшествия</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-spinner stat-icon"></i>
-                <span class="stat-label">Активни</span>
+                <span class="stat-label" data-i18n="stats.active">Активни</span>
             </div>
             <div class="stat-card-value" id="activeCount">0</div>
-            <div class="stat-card-footer">Текущо обработвани</div>
+            <div class="stat-card-footer" data-i18n="stats.currentlyProcessing">Текущо обработвани</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-check-circle stat-icon"></i>
-                <span class="stat-label">Приключени</span>
+                <span class="stat-label" data-i18n="stats.completed">Приключени</span>
             </div>
             <div class="stat-card-value" id="completedCount">0</div>
-            <div class="stat-card-footer">Завършени произшествия</div>
+            <div class="stat-card-footer" data-i18n="stats.completedIncidents">Завършени произшествия</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-card-header">
                 <i class="fas fa-people-carry stat-icon"></i>
-                <span class="stat-label">Екипи на смяна</span>
+                <span class="stat-label" data-i18n="stats.onHold">Екипи на смяна</span>
             </div>
             <div class="stat-card-value" id="onHoldCount">0</div>
-            <div class="stat-card-footer">Активни екипи</div>
+            <div class="stat-card-footer" data-i18n="stats.activeTeams">Активни екипи</div>
         </div>
     </div>
 
     <!-- Incidents Table Panel -->
     <div class="panel-container">
         <div class="panel-header">
-            <h2>Списък с произшествия</h2>
+            <h2 data-i18n="dashboard.panelTitle">Списък с произшествия</h2>
             <div class="panel-controls">
-                <input type="text" id="searchInput" class="search-box" placeholder="Търси произшествие...">
+                <input type="text" id="searchInput" class="search-box" placeholder="Търси произшествие..." data-i18n-placeholder="filters.searchPlaceholder">
                 <select id="filterStatus" class="filter-select">
-                    <option value="">Всички статуси</option>
-                    <option value="в работа">В работа</option>
-                    <option value="активно">Активно</option>
-                    <option value="приключено">Приключено</option>
-                    <option value="приостановено">Приостановено</option>
-                    <option value="отменено">Отменено</option>
+                    <option value="" data-i18n="filters.allStatuses">Всички статуси</option>
+                    <option value="в работа" data-i18n="filters.inProgress">В работа</option>
+                    <option value="активно" data-i18n="filters.active">Активно</option>
+                    <option value="приключено" data-i18n="filters.completed">Приключено</option>
+                    <option value="приостановено" data-i18n="filters.onHold">Приостановено</option>
+                    <option value="отменено" data-i18n="filters.cancelled">Отменено</option>
                 </select>
             </div>
         </div>
@@ -159,30 +167,30 @@
                 <table id="incidentsTable" class="incidents-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Тип</th>
-                            <th>Адрес</th>
-                            <th>Дата & Час</th>
-                            <th>Статус</th>
-                            <th>Действие</th>
+                            <th data-i18n="table.id">ID</th>
+                            <th data-i18n="table.type">Тип</th>
+                            <th data-i18n="table.address">Адрес</th>
+                            <th data-i18n="table.dateTime">Дата & Час</th>
+                            <th data-i18n="table.status">Статус</th>
+                            <th data-i18n="table.actions">Действие</th>
                         </tr>
                     </thead>
                     <tbody id="incidentsTableBody">
                         <tr class="loading-row">
-                            <td colspan="6">Зареждане на произшествия...</td>
+                            <td colspan="6" data-i18n="dashboard.loadingIncidents">Зареждане на произшествия...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div id="emptyStateMessage" class="empty-state" style="display: none;">
                 <i class="fas fa-inbox empty-state-icon"></i>
-                <p>Няма произшествия</p>
-                <small>Започнете, като кликнете на "Добави произшествие"</small>
+                <p data-i18n="dashboard.emptyState">Няма произшествия</p>
+                <small data-i18n="dashboard.emptyStateDetails">Започнете, като кликнете на "Добави произшествие"</small>
             </div>
         </div>
 
         <div class="panel-footer">
-            <span id="recordCount">0 записа</span>
+            <span id="recordCount">0</span>
         </div>
     </div>
 </div>
@@ -191,58 +199,58 @@
 <div id="incidentModal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Детайли на произшествие</h2>
+            <h2 data-i18n="detail.heading">Детайли на произшествие</h2>
             <button class="modal-close" onclick="closeIncidentModal()">&times;</button>
         </div>
         <div class="modal-body">
             <div class="detail-group">
-                <label>ID:</label>
+                <label data-i18n="detail.id">ID:</label>
                 <span id="detailId">-</span>
             </div>
             <div class="detail-group">
-                <label>Тип:</label>
+                <label data-i18n="detail.type">Тип:</label>
                 <span id="detailType">-</span>
             </div>
             <div class="detail-group">
-                <label>Адрес:</label>
+                <label data-i18n="detail.address">Адрес:</label>
                 <span id="detailAddress">-</span>
             </div>
             <div class="detail-group">
-                <label>Дата и час:</label>
+                <label data-i18n="detail.dateTime">Дата и час:</label>
                 <span id="detailDateTime">-</span>
             </div>
             <div class="detail-group">
-                <label>Описание:</label>
+                <label data-i18n="detail.description">Описание:</label>
                 <span id="detailDescription">-</span>
             </div>
             <div class="detail-group">
-                <label>GPS координати:</label>
+                <label data-i18n="detail.coordinates">GPS координати:</label>
                 <span id="detailCoordinates">-</span>
             </div>
             <div class="detail-group">
-                <label>Екип:</label>
+                <label data-i18n="detail.team">Екип:</label>
                 <span id="detailTeam">-</span>
             </div>
             <div class="detail-group">
-                <label>Статус:</label>
+                <label data-i18n="detail.status">Статус:</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <span id="detailStatus">-</span>
                     <div id="statusChangeContainer" style="display: none; gap: 10px;">
                         <select id="newStatusSelect" class="filter-select" style="padding: 5px 10px; font-size: 14px;">
-                            <option value="в работа">В работа</option>
-                            <option value="активно">Активно</option>
-                            <option value="приключено">Приключено</option>
-                            <option value="приостановено">Приостановено</option>
-                            <option value="отменено">Отменено</option>
+                            <option value="в работа" data-i18n="filters.inProgress">В работа</option>
+                            <option value="активно" data-i18n="filters.active">Активно</option>
+                            <option value="приключено" data-i18n="filters.completed">Приключено</option>
+                            <option value="приостановено" data-i18n="filters.onHold">Приостановено</option>
+                            <option value="отменено" data-i18n="filters.cancelled">Отменено</option>
                         </select>
-                        <button class="btn-action" onclick="updateIncidentStatus()">Обновяване</button>
+                        <button class="btn-action" onclick="updateIncidentStatus()" data-i18n="detail.update">Обновяване</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeIncidentModal()">Затвори</button>
-            <button id="deleteIncidentBtn" class="btn-danger" onclick="deleteIncidentConfirm()" style="display: none;">Изтрий произшествие</button>
+            <button class="btn-secondary" onclick="closeIncidentModal()" data-i18n="detail.close">Затвори</button>
+            <button id="deleteIncidentBtn" class="btn-danger" onclick="deleteIncidentConfirm()" style="display: none;" data-i18n="detail.delete">Изтрий произшествие</button>
         </div>
     </div>
 </div>
@@ -252,16 +260,16 @@
 <div id="taskModal" class="modal">
     <div class="modal-content task-modal">
         <div class="modal-header">
-            <h2>Задачи на произшествието</h2>
+            <h2 data-i18n="task.heading">Задачи на произшествието</h2>
             <button class="modal-close" onclick="closeTaskModal()">&times;</button>
         </div>
         <div class="modal-body">
             <div id="taskList" class="task-list"></div>
             <div class="task-add-container">
-                <h3>Добави нова задача</h3>
-                <input id="taskTitle" class="form-control" placeholder="Заглавие на задачата" autocomplete="off">
-                <textarea id="taskDescription" class="form-control" placeholder="Описание (незадължително)" autocomplete="off"></textarea>
-                <button class="btn-add-primary" onclick="addTask()">Добави задача</button>
+                <h3 data-i18n="task.addSection">Добави нова задача</h3>
+                <input id="taskTitle" class="form-control" placeholder="Заглавие на задачата" autocomplete="off" data-i18n-placeholder="task.titlePlaceholder">
+                <textarea id="taskDescription" class="form-control" placeholder="Описание (незадължително)" autocomplete="off" data-i18n-placeholder="task.descriptionPlaceholder"></textarea>
+                <button class="btn-add-primary" onclick="addTask()" data-i18n="task.addButton">Добави задача</button>
             </div>
         </div>
     </div>
@@ -269,6 +277,7 @@
 
 
 <script src="../js/config.js"></script>
+<script src="../js/language-selector.js"></script>
 <script src="../js/dashboard.js"></script>
 </body>
 </html>

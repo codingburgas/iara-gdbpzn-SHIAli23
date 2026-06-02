@@ -1,0 +1,136 @@
+/* Professional Language Selector Styling */
+
+.language-switcher-fixed {
+    position: fixed;
+    top: 18px;
+    right: 24px;
+    z-index: 9999;
+}
+
+.language-selector {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 180px;
+    padding: 12px 18px;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(255, 140, 66, 0.35);
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.language-selector::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255, 140, 66, 0.18), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.language-selector:hover {
+    background: rgba(17, 24, 39, 0.92);
+    transform: translateY(-1px);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
+}
+
+.language-selector:hover::before {
+    opacity: 1;
+}
+
+.language-selector:active {
+    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.language-selector i {
+    font-size: 16px;
+    color: #FF9D5C;
+}
+
+.language-select {
+    flex: 1 1 auto;
+    min-width: 80px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    z-index: 1;
+}
+
+.language-select option {
+    background: #111827;
+    color: #ffffff;
+    padding: 8px 12px;
+}
+
+.language-select option:checked {
+    background: rgba(255, 140, 66, 0.18);
+    color: #FFB347;
+}
+
+.language-select:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.8);
+    outline-offset: 3px;
+}
+
+.language-select::-ms-expand {
+    display: none;
+}
+
+/* Dropdown arrow customization */
+.language-selector::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #FF9D5C;
+    border-bottom: 2px solid #FF9D5C;
+    transform: translateY(-50%) rotate(45deg);
+    pointer-events: none;
+}
+
+/* Topbar integration */
+.topbar-right .language-selector {
+    padding: 10px 16px;
+    font-size: 12px;
+}
+
+/* Animation on page load */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.language-switcher-fixed {
+    animation: slideIn 0.4s ease-out;
+}

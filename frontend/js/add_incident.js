@@ -132,7 +132,7 @@ function initializeMap() {
 // Use selected map coordinates
 function useSelectedMapCoordinates() {
     if (selectedMapLat === null || selectedMapLng === null) {
-        showError("Моля, щракни на картата, за да изберeш локация");
+        showError(t('addIncident.clickMap'));
         return;
     }
 
@@ -143,7 +143,7 @@ function useSelectedMapCoordinates() {
     // Switch to coordinates mode
     switchMode("coordinates");
 
-    showError("Координатите са успешно зададени. Сега можеш да добавиш произшествието.");
+    showError(t('addIncident.coordinatesSetSuccess'));
 }
 
 // Load teams from backend
@@ -183,13 +183,13 @@ async function handleFormSubmit(e) {
 
     // Validate required fields
     if (!type || !address) {
-        showError("Моля, попълнете всички задължителни полета");
+        showError(t('addIncident.fillRequiredFields'));
         return;
     }
 
     // Validate GPS coordinates if provided
     if ((latitude && !isValidCoordinate(latitude)) || (longitude && !isValidCoordinate(longitude))) {
-        showError("GPS координатите трябва да са валидни числа");
+        showError(t('addIncident.gpsInvalid'));
         return;
     }
 
@@ -206,15 +206,15 @@ async function handleFormSubmit(e) {
     // Disable submit button
     const submitBtn = document.querySelector(".btn-submit");
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Зареждане...';
+    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('addIncident.loading')}`;
 
     // Send request
     const response = await apiClient.post('/incidents/create', requestData);
     
     if (!response.ok) {
-        showError(response.error || "Грешка при добавяне на произшествието");
+        showError(response.error || t('addIncident.createError'));
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> Добави произшествие';
+        submitBtn.innerHTML = `<i class="fas fa-check"></i> ${t('addIncident.submitButton')}`;
         return;
     }
 
@@ -244,7 +244,7 @@ function showSuccessMessage(incidentId) {
 
     // Show success message
     successObj.style.display = "block";
-    successText.textContent = `Произшествието е успешно регистрирано в системата. Пренасочване...`;
+    successText.textContent = t('addIncident.successRedirect');
 }
 
 // Show error message
@@ -263,7 +263,7 @@ function showError(message) {
 
 // Handle cancel button
 function handleCancel() {
-    if (confirm("Наистина ли искаш да отмениш добавянето на произшествието?")) {
+    if (confirm(t('addIncident.cancelConfirm'))) {
         window.location.href = "./dashboard.html";
     }
 }

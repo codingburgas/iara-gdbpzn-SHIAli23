@@ -8,13 +8,13 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     // Show loading state
     const originalHtml = loginBtn.innerHTML;
     loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+    loginBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('auth.loginButtonLoading')}`;
 
     try {
         const response = await apiClient.post('/auth/login', { username, password });
 
         if (!response.ok) {
-            alert(response.error || "Грешка при вход");
+            alert(response.error || t('alerts.loginError'));
             loginBtn.disabled = false;
             loginBtn.innerHTML = originalHtml;
             return;
@@ -22,10 +22,10 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         // Store user data in localStorage
         localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-        alert("Успешен вход!");
+        alert(t('alerts.loginSuccess'));
         window.location.href = "../html/dashboard.html";
     } catch (error) {
-        alert("Грешка при вход: " + error.message);
+        alert(`${t('alerts.loginError')}: ${error.message}`);
         loginBtn.disabled = false;
         loginBtn.innerHTML = originalHtml;
     }

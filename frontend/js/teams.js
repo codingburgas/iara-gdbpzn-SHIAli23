@@ -192,13 +192,13 @@ async function loadMyTeam() {
         const response = await apiClient.get(`/teams/${teamId}`);
         
         if (!response.ok) {
-            throw new Error("Грешка при зареждане на екипа");
+            throw new Error(t('teams.loadTeamError'));
         }
 
         const team = response.data;
         
         // Display team info
-        document.getElementById("myTeamName").textContent = team.name || "Мой екип";
+        document.getElementById("myTeamName").textContent = team.name || t('teams.myTeamName');
         document.getElementById("myTeamStation").textContent = team.station || "-";
         document.getElementById("myTeamType").textContent = getTeamTypeLabel(team.type);
         document.getElementById("myTeamStatusText").textContent = getStatusLabel(team.status);
@@ -218,7 +218,7 @@ async function loadMyTeam() {
                 displayAssignedVehicle(vehicleResponse.data);
             }
         } else {
-            document.getElementById("assignedVehicleContainer").innerHTML = '<div class="empty-state">Няма назначен автомобил</div>';
+            document.getElementById("assignedVehicleContainer").innerHTML = `<div class="empty-state">${t('teams.assignedVehicleNone')}</div>`;
         }
 
         document.getElementById("firefighterView").style.display = "block";
@@ -234,7 +234,7 @@ function displayTeamMembers(members) {
     const container = document.getElementById("teamMembersContainer");
     
     if (members.length === 0) {
-        container.innerHTML = '<div class="empty-state">Няма членове</div>';
+        container.innerHTML = `<div class="empty-state">${t('teams.noMembers')}</div>`;
         return;
     }
 
@@ -244,7 +244,7 @@ function displayTeamMembers(members) {
                 <i class="fas fa-user"></i>
             </div>
             <div class="member-name">${escapeHtml(member.full_name || member.name)}</div>
-            <div class="member-role">${member.role === 'firefighter' ? 'Пожарникар' : member.role}</div>
+            <div class="member-role">${member.role === 'firefighter' ? t('teams.firefighterRole') : escapeHtml(member.role)}</div>
             <div class="member-status">${getStatusLabel(member.status || 'off_duty')}</div>
         </div>
     `).join('');
@@ -271,7 +271,7 @@ async function loadAllTeams() {
         const response = await apiClient.get('/teams/list');
         
         if (!response.ok) {
-            throw new Error("Грешка при зареждане на екипи");
+            throw new Error(t('teams.loadTeamsError'));
         }
 
         const teams = response.data.teams || [];
@@ -289,7 +289,7 @@ function displayTeamsGrid(teams) {
     const container = document.getElementById("teamsGrid");
     
     if (teams.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">Няма екипи</div>';
+        container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">${t('teams.noTeams')}</div>`;
         return;
     }
 
@@ -310,14 +310,14 @@ function displayTeamsGrid(teams) {
             </div>
             <div class="team-card-meta">
                 <i class="fas fa-users"></i>
-                <span>${team.member_count || 0} членове</span>
+                <span>${t('teams.memberCount', { count: team.member_count || 0 })}</span>
             </div>
             <div class="team-card-actions">
                 <button class="btn-small btn-small-primary" onclick="openEditTeamModal(${team.id})">
-                    <i class="fas fa-edit"></i> Редактирай
+                    <i class="fas fa-edit"></i> ${t('teams.editButton')}
                 </button>
                 <button class="btn-small btn-small-danger" onclick="deleteTeam(${team.id})">
-                    <i class="fas fa-trash"></i> Изтрий
+                    <i class="fas fa-trash"></i> ${t('teams.deleteButton')}
                 </button>
             </div>
         </div>
@@ -326,7 +326,7 @@ function displayTeamsGrid(teams) {
 
 async function openCreateTeamModal() {
     document.getElementById("createTeamForm").reset();
-    document.getElementById("selectedFirefighters").innerHTML = '<div class="empty-message">Няма избрани пожарникари</div>';
+    document.getElementById("selectedFirefighters").innerHTML = `<div class="empty-message">${t('teams.noSelectedFirefighters')}</div>`;
     
     // Load firefighters
     await loadFirefightersForSelector();
@@ -362,7 +362,7 @@ async function loadFirefightersForSelector() {
             </div>
         `).join('');
 
-        commanderSelect.innerHTML = '<option value="">Избери командир</option>' + firefighters.map(ff => `
+        commanderSelect.innerHTML = `<option value="">${t('teams.selectCommander')}</option>` + firefighters.map(ff => `
             <option value="${ff.id}">${escapeHtml(ff.name)}</option>
         `).join('');
 
@@ -422,7 +422,7 @@ function updateSelectedFirefighters() {
     const container = document.getElementById("selectedFirefighters");
     
     if (selected.length === 0) {
-        container.innerHTML = '<div class="empty-message">Няма избрани пожарникари</div>';
+        container.innerHTML = `<div class="empty-message">${t('teams.noSelectedFirefighters')}</div>`;
     } else {
         container.innerHTML = selected.map(ff => `
             <div class="selected-tag">
@@ -461,7 +461,7 @@ async function handleCreateTeam(e) {
     const selectedFirefighters = Array.from(document.querySelectorAll('.firefighter-checkbox:checked')).map(cb => cb.value);
 
     if (!name) {
-        alert("Моля, въведете име на екипа");
+        alert(t('teams.enterTeamName'));
         return;
     }
 
@@ -478,21 +478,21 @@ async function handleCreateTeam(e) {
         const response = await apiClient.post('/teams/create', payload);
 
         if (!response.ok) {
-            throw new Error(response.error || "Грешка при създаване на екип");
+            throw new Error(response.error || t('teams.createTeamError'));
         }
 
-        alert("Екипът е успешно създаден!");
+        alert(t('teams.createTeamSuccess'));
         closeCreateTeamModal();
         loadAllTeams();
     } catch (error) {
-        alert("Грешка: " + error.message);
+        alert(`${t('alerts.errorPrefix')}: ${error.message}`);
     }
 }
 
 async function openEditTeamModal(teamId) {
     try {
         const response = await apiClient.get(`/teams/${teamId}`);
-        if (!response.ok) throw new Error(response.error || 'Грешка при зареждане на екипа');
+        if (!response.ok) throw new Error(response.error || t('teams.loadTeamError'));
 
         const team = response.data;
 
@@ -510,14 +510,14 @@ async function openEditTeamModal(teamId) {
 
         document.getElementById('editTeamModal').style.display = 'flex';
     } catch (error) {
-        alert('Грешка при зареждане на екипа: ' + (error.message || error));
+        alert(`${t('teams.loadTeamError')}: ${error.message || error}`);
     }
 }
 
 async function handleEditTeam(e) {
     e.preventDefault();
     const id = document.getElementById('editTeamId')?.value;
-    if (!id) return alert('Невалиден екип');
+    if (!id) return alert(t('teams.invalidTeam'));
 
     const name = document.getElementById('editTeamName')?.value.trim();
     const station = document.getElementById('editTeamStation')?.value.trim();
@@ -533,13 +533,13 @@ async function handleEditTeam(e) {
         };
 
         const response = await apiClient.put(`/teams/${id}`, payload);
-        if (!response.ok) throw new Error(response.error || 'Грешка при обновяване на екипа');
+        if (!response.ok) throw new Error(response.error || t('teams.updateTeamError'));
 
-        alert('Екипът е обновен успешно');
+        alert(t('teams.updateTeamSuccess'));
         closeEditTeamModal();
         loadAllTeams();
     } catch (error) {
-        alert('Грешка: ' + (error.message || error));
+        alert(`${t('alerts.errorPrefix')}: ${error.message || error}`);
     }
 }
 
@@ -548,50 +548,50 @@ function closeEditTeamModal() {
 }
 
 async function deleteTeam(teamId) {
-    if (!confirm("Сигурни ли сте, че искате да премахнете този екип?")) return;
+    if (!confirm(t('teams.confirmDelete'))) return;
 
     try {
         const response = await apiClient.delete(`/teams/${teamId}`);
 
         if (!response.ok) {
-            throw new Error(response.error || "Грешка при премахване на екип");
+            throw new Error(response.error || t('teams.deleteTeamError'));
         }
 
-        alert("Екипът е успешно премахнат!");
+        alert(t('teams.deleteTeamSuccess'));
         loadAllTeams();
     } catch (error) {
-        alert("Грешка: " + error.message);
+        alert(`${t('alerts.errorPrefix')}: ${error.message}`);
     }
 }
 
 function getTeamTypeLabel(type) {
     const labels = {
-        'OPERATIONAL': 'Оперативен',
-        'SUPPORT': 'Подпомагащ',
-        'RESCUE': 'Спасителен'
+        'OPERATIONAL': t('teams.teamTypeOperational'),
+        'SUPPORT': t('teams.teamTypeSupport'),
+        'RESCUE': t('teams.teamTypeRescue')
     };
     return labels[type] || type;
 }
 
 function getVehicleTypeLabel(type) {
     const labels = {
-        'FIRE_TRUCK': 'Пожарен автомобил',
-        'CISTERN': 'Цистерна',
-        'SUPPORT': 'Подпомагащ'
+        'FIRE_TRUCK': t('vehicles.filters.fireTruck'),
+        'CISTERN': t('vehicles.filters.cistern'),
+        'SUPPORT': t('vehicles.filters.support')
     };
     return labels[type] || type;
 }
 
 function getStatusLabel(status) {
     const labels = {
-        'AVAILABLE': 'Disponibel',
-        'ON_MISSION': 'На задача',
-        'MAINTENANCE': 'Поддържане',
-        'off_duty': 'Извън дежурство',
-        'on_duty': 'На дежурство',
-        'on_mission': 'На задача',
-        'vacation': 'Отпуск',
-        'sick_leave': 'Болен'
+        'AVAILABLE': t('teams.statusAvailable'),
+        'ON_MISSION': t('teams.statusOnMission'),
+        'MAINTENANCE': t('teams.statusMaintenance'),
+        'off_duty': t('teams.statusOffDuty'),
+        'on_duty': t('teams.statusOnDuty'),
+        'on_mission': t('teams.statusOnMission'),
+        'vacation': t('teams.statusVacation'),
+        'sick_leave': t('teams.statusSickLeave')
     };
     return labels[status] || status;
 }
@@ -641,14 +641,14 @@ async function loadNotifications() {
     const response = await apiClient.get('/notifications?limit=20&offset=0');
     
     if (!response.ok) {
-        notificationList.innerHTML = '<div class="notification-empty">Грешка при зареждане на уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.loadError')}</div>`;
         return;
     }
     
     const notifications = response.data.notifications || [];
     
     if (notifications.length === 0) {
-        notificationList.innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+        notificationList.innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         return;
     }
     
@@ -688,7 +688,7 @@ async function markNotificationRead(notificationId) {
         }
         const remainingNotifs = document.querySelectorAll('.notification-item');
         if (remainingNotifs.length === 0) {
-            document.getElementById("notificationList").innerHTML = '<div class="notification-empty">Няма уведомления</div>';
+            document.getElementById("notificationList").innerHTML = `<div class="notification-empty">${t('notifications.noNotifications')}</div>`;
         }
         updateNotificationBadge();
     }
@@ -729,11 +729,14 @@ function formatNotificationTime(dateStr) {
     const diffDays = Math.floor(diffMs / 86400000);
     
     let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'Преди несолко секунди';
-    else if (diffMins < 60) relativeTime = `Преди ${diffMins} мин.`;
-    else if (diffHours < 24) relativeTime = `Преди ${diffHours} ч.`;
-    else if (diffDays < 7) relativeTime = `Преди ${diffDays} д.`;
-    else relativeTime = date.toLocaleDateString('bg-BG');
+    if (diffMins < 1) relativeTime = t('notifications.relativeSeconds');
+    else if (diffMins < 60) relativeTime = t('notifications.relativeMinutes', { count: diffMins });
+    else if (diffHours < 24) relativeTime = t('notifications.relativeHours', { count: diffHours });
+    else if (diffDays < 7) relativeTime = t('notifications.relativeDays', { count: diffDays });
+    else {
+        const locale = window.currentLanguage === 'en' ? 'en-US' : 'bg-BG';
+        relativeTime = date.toLocaleDateString(locale);
+    }
     
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
